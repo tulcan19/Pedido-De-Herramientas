@@ -1,0 +1,51 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('usuarios', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->string('cedula')->unique();
+            $table->string('password');
+            $table->enum('rol', ['admin', 'estudiante'])->default('estudiante');
+            $table->unsignedInteger('semestre')->nullable();
+            $table->timestamp('ultimo_cambio_semestre')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('tokens_reinicio_password', function (Blueprint $table) {
+            $table->string('cedula')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        Schema::create('sesiones', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('usuarios');
+        Schema::dropIfExists('tokens_reinicio_password');
+        Schema::dropIfExists('sesiones');
+    }
+};
