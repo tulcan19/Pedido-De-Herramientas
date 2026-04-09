@@ -13,6 +13,13 @@ class Herramienta extends Model
         'estado',
         'ubicacion',
         'imagen',
+        'es_alto_valor',
+        'accesorios',
+    ];
+
+    protected $casts = [
+        'es_alto_valor' => 'boolean',
+        'accesorios' => 'array',
     ];
 
     /**

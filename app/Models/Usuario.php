@@ -27,6 +27,7 @@ class Usuario extends Authenticatable
         'cedula',
         'password',
         'rol',
+        'asignatura',
         'semestre',
         'ultimo_cambio_semestre',
     ];
@@ -37,6 +38,14 @@ class Usuario extends Authenticatable
     public function esAdmin(): bool
     {
         return $this->rol === 'admin';
+    }
+
+    /**
+     * Comprobar si el usuario es docente.
+     */
+    public function esDocente(): bool
+    {
+        return $this->rol === 'docente';
     }
 
     /**
@@ -58,6 +67,7 @@ class Usuario extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'ultimo_cambio_semestre' => 'datetime',
         ];
     }
 
@@ -67,5 +77,18 @@ class Usuario extends Authenticatable
     public function prestamos()
     {
         return $this->hasMany(Prestamo::class, 'usuario_id');
+    }
+
+    public function peticiones()
+    {
+        return $this->hasMany(Peticion::class, 'usuario_id');
+    }
+
+    /**
+     * Peticiones donde este usuario es el docente responsable
+     */
+    public function peticionesAsignadas()
+    {
+        return $this->hasMany(Peticion::class, 'docente_id');
     }
 }

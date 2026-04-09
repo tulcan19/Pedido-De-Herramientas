@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
@@ -42,5 +43,45 @@ class UsuarioController extends Controller
         ]);
 
         return back()->with('success', "¡{$usuario->nombre} ha sido promovido al " . $usuario->semestre . "° Semestre!");
+    }
+
+    /**
+     * Gestión de Docentes
+     */
+    public function docentesIndex()
+    {
+        $docentes = Usuario::where('rol', 'docente')->orderBy('nombre')->get();
+        return view('usuarios.docentes', compact('docentes'));
+    }
+
+    public function docentesStore(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'cedula' => 'required|string|unique:usuarios,cedula|max:10',
+            'asignatura' => 'required|string|max:255',
+        ], [
+            'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
+        ]);
+
+        Usuario::create([
+            'nombre' => $request->nombre,
+            'cedula' => $request->cedula,
+            'asignatura' => $request->asignatura,
+            'password' => Hash::make($request->cedula), // Contraseña genérica (Cédula)
+            'rol' => 'docente',
+        ]);
+
+        return back()->with('success', 'Docente registrado exitosamente. La contraseña inicial es su número de cédula.');
+    }
+
+    public function docentesDestroy(Usuario $usuario)
+    {
+        if ($usuario->rol !== 'docente') {
+            return back()->with('error', 'Solo se pueden eliminar cuentas de docentes desde esta sección.');
+        }
+
+        $usuario->delete();
+        return back()->with('success', 'Docente eliminado del sistema.');
     }
 }

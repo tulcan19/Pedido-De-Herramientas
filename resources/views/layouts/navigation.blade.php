@@ -19,8 +19,14 @@
                         {{ __('Herramientas') }}
                     </x-nav-link>
                     @if(Auth::user()->esAdmin())
-                        <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
-                            {{ __('Gestión de Estudiantes') }}
+                        <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.index')">
+                            {{ __('Estudiantes') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('docentes.index')" :active="request()->routeIs('docentes.*')">
+                            {{ __('Docentes') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('reportes.index')" :active="request()->routeIs('reportes.*')">
+                            {{ __('Reportes') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -120,8 +126,14 @@
                 {{ __('Herramientas') }}
             </x-responsive-nav-link>
             @if(Auth::user()->esAdmin())
-                <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
-                    {{ __('Gestión de Estudiantes') }}
+                <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.index')">
+                    {{ __('Estudiantes') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('docentes.index')" :active="request()->routeIs('docentes.*')">
+                    {{ __('Docentes') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reportes.index')" :active="request()->routeIs('reportes.*')">
+                    {{ __('Reportes') }}
                 </x-responsive-nav-link>
             @endif
         </div>

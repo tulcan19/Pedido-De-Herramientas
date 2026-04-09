@@ -73,6 +73,21 @@
                                 <x-input-error class="mt-2" :messages="$errors->get('ubicacion')" />
                             </div>
 
+                            <!-- Checklist de Alto Valor -->
+                            <div class="col-span-1 sm:col-span-2 mt-4 p-4 border border-corporate-gold/30" style="background:#fdf8ee; border-radius:12px; border-color:#cca75b;">
+                                <label class="inline-flex items-center cursor-pointer mb-2">
+                                    <input type="checkbox" name="es_alto_valor" value="1" class="rounded text-[#a07a2a] shadow-sm focus:ring-[#cca75b]" {{ old('es_alto_valor') ? 'checked' : '' }}>
+                                    <span class="ml-2 font-bold text-[#16213e]">Herramienta de Alto Valor (Requiere fotos y check-list al devolver)</span>
+                                </label>
+
+                                <div class="mt-2">
+                                    <x-input-label for="accesorios" value="Accesorios a verificar (Opcional)" />
+                                    <x-text-input id="accesorios" name="accesorios" type="text" class="mt-1 block w-full text-sm" :value="old('accesorios')" placeholder="Ej: Cargador, Manual de uso, Puntas, Estuche..." />
+                                    <p class="mt-1 text-[11px] text-gray-500">Separa cada ítem con una coma (,). Estos serán validados al momento de la devolución.</p>
+                                    <x-input-error class="mt-2" :messages="$errors->get('accesorios')" />
+                                </div>
+                            </div>
+
                             <!-- Descripción -->
                             <div class="col-span-1 sm:col-span-2">
                                 <x-input-label for="descripcion" value="Descripción (Opcional)" />

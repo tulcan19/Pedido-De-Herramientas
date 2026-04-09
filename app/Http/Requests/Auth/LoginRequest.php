@@ -28,7 +28,17 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cedula' => ['required', 'string', new \App\Rules\CedulaEcuador],
+            'cedula' => [
+                'required', 
+                'string', 
+                function ($attribute, $value, $fail) {
+                    if ($value === 'admin') {
+                        return;
+                    }
+                    $rule = new \App\Rules\CedulaEcuador;
+                    $rule->validate($attribute, $value, $fail);
+                }
+            ],
             'password' => ['required', 'string'],
         ];
     }
