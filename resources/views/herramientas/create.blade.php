@@ -80,12 +80,53 @@
                                     <span class="ml-2 font-bold text-[#16213e]">Herramienta de Alto Valor (Requiere fotos y check-list al devolver)</span>
                                 </label>
 
-                                <div class="mt-2">
-                                    <x-input-label for="accesorios" value="Accesorios a verificar (Opcional)" />
-                                    <x-text-input id="accesorios" name="accesorios" type="text" class="mt-1 block w-full text-sm" :value="old('accesorios')" placeholder="Ej: Cargador, Manual de uso, Puntas, Estuche..." />
-                                    <p class="mt-1 text-[11px] text-gray-500">Separa cada ítem con una coma (,). Estos serán validados al momento de la devolución.</p>
-                                    <x-input-error class="mt-2" :messages="$errors->get('accesorios')" />
+                                <div class="mt-4">
+                                    <x-input-label value="Accesorios a verificar (Ingreso uno por uno)" />
+                                    <div id="accesorios-container" class="space-y-2 mt-2">
+                                        <!-- Los campos se añadirán aquí dinámicamente -->
+                                    </div>
+                                    <button type="button" onclick="addAccesorio()" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-corporate-blue hover:text-blue-700 transition-colors">
+                                        <span class="material-symbols-outlined text-sm">add_circle</span>
+                                        Añadir accesorio
+                                    </button>
+                                    <p class="mt-2 text-[10px] text-gray-400 italic">Cada accesorio ingresado será validado individualmente al momento de la devolución.</p>
                                 </div>
+
+                                <script>
+                                    function addAccesorio(value = '', estado = 'disponible') {
+                                        const container = document.getElementById('accesorios-container');
+                                        const index = container.children.length;
+                                        const div = document.createElement('div');
+                                        div.className = 'flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200 bg-gray-50/50 p-2 rounded-xl border border-dashed border-gray-200';
+                                        div.innerHTML = `
+                                            <div class="flex-grow flex items-center gap-2">
+                                                <input type="text" name="accesorios[${index}][nombre]" value="${value}" 
+                                                    class="flex-grow text-sm border-gray-300 focus:border-corporate-gold focus:ring-corporate-gold rounded-lg shadow-sm" 
+                                                    placeholder="Nombre del accesorio">
+                                                
+                                                <select name="accesorios[${index}][estado]" class="text-[10px] font-bold uppercase tracking-wider py-1 px-3 pr-8 rounded-lg border-gray-300 focus:ring-0 cursor-pointer bg-white">
+                                                    <option value="disponible" ${estado === 'disponible' ? 'selected' : ''}>Disponible</option>
+                                                    <option value="mantenimiento" ${estado === 'mantenimiento' ? 'selected' : ''}>Mantenimiento</option>
+                                                    <option value="perdido" ${estado === 'perdido' ? 'selected' : ''}>Perdido</option>
+                                                </select>
+                                            </div>
+                                            <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 transition-colors">
+                                                <span class="material-symbols-outlined text-lg">cancel</span>
+                                            </button>
+                                        `;
+                                        container.appendChild(div);
+                                        div.querySelector('input').focus();
+                                    }
+
+                                    // Adaptar carga inicial
+                                    window.addEventListener('load', () => {
+                                        @if(old('accesorios') && is_array(old('accesorios')))
+                                            @foreach(old('accesorios') as $index => $acc)
+                                                addAccesorio('{{ $acc["nombre"] ?? "" }}', '{{ $acc["estado"] ?? "disponible" }}');
+                                            @endforeach
+                                        @endif
+                                    });
+                                </script>
                             </div>
 
                             <!-- Descripción -->

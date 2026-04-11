@@ -100,13 +100,13 @@
                             <select name="docente_id" id="docente_id" class="input-line" required onchange="updateTeacherSignature(this)">
                                 <option value="" disabled selected>Seleccione un docente</option>
                                 @foreach($docentes as $docente)
-                                    <option value="{{ $docente->id }}" {{ old('docente_id') == $docente->id ? 'selected' : '' }}>{{ $docente->nombre }}</option>
+                                <option value="{{ $docente->id }}" {{ old('docente_id') == $docente->id ? 'selected' : '' }} data-asignatura="{{ $docente->asignatura }}">{{ $docente->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="input-group">
                             <span class="input-label">Asignatura:</span>
-                            <input type="text" name="asignatura" class="input-line" placeholder="Ej. Sistemas de Inyección" value="{{ old('asignatura') }}" required>
+                            <input type="text" name="asignatura" id="asignatura" class="input-line bg-gray-50 cursor-not-allowed" placeholder="Ej. Sistemas de Inyección" value="{{ old('asignatura') }}" readonly required>
                         </div>
                         <div class="input-group">
                             <span class="input-label">Fecha:</span>
@@ -156,10 +156,11 @@
                                         <div style="font-weight:700; color:#16213e;">{{ $h->nombre }}</div>
                                         <div style="font-size:11px; color:#9ca3af; margin-bottom: 5px;">{{ Str::limit($h->descripcion, 50) }}</div>
                                         
-                                        @if(is_array($h->accesorios) && count($h->accesorios) > 0)
+                                        @if(count($h->accesorios_formateados) > 0)
                                             <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                                                @foreach($h->accesorios as $acc)
-                                                    <span style="font-size:9px; background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px; border:1px solid #e2e8f0;">{{ $acc }}</span>
+                                                @foreach($h->accesorios_formateados as $acc)
+                                                    @if($acc['estado'] !== 'disponible') @continue @endif
+                                                    <span style="font-size:9px; background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px; border:1px solid #e2e8f0;">{{ $acc['nombre'] }}</span>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -224,8 +225,15 @@
         }
 
         function updateTeacherSignature(select) {
-            const name = select.options[select.selectedIndex].text;
+            const option = select.options[select.selectedIndex];
+            const name = option.text;
+            const asignatura = option.getAttribute('data-asignatura');
+
             document.getElementById('teacher-sig-name').innerText = name;
+            
+            if (asignatura) {
+                document.getElementById('asignatura').value = asignatura;
+            }
         }
 
         document.getElementById('peticion-form').addEventListener('submit', function() {

@@ -82,28 +82,59 @@ class PrestamoController extends Controller
         }
 
         $request->validate([
-            'foto_devolucion' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_devolucion' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'observaciones' => 'nullable|string|max:1000',
         ], [
             'foto_devolucion.required' => 'Es obligatorio adjuntar o tomar una foto de la herramienta.',
         ]);
 
         $herramienta = $prestamo->herramienta;
-        if (is_array($herramienta->accesorios) && count($herramienta->accesorios) > 0) {
-            if (!$request->has('accesorios') || count($request->accesorios) !== count($herramienta->accesorios)) {
-                return back()->with('error', 'Debes marcar TODOS los accesorios para recibir la herramienta.');
+        $tieneIncidencia = false;
+
+        // Validar checklist si la herramienta tiene accesorios
+        if (!empty($herramienta->accesorios)) {
+            $accesoriosOriginales = $herramienta->accesorios_formateados;
+            $recibidosIndices = $request->input('accesorios_recibidos', []);
+            $nuevosAccesorios = [];
+            
+            foreach ($accesoriosOriginales as $index => $acc) {
+                // Si el accesorio ya estaba perdido, lo dejamos como estaba (o podríamos reincorporarlo si se marca, pero la vista los filtra)
+                if ($acc['estado'] == 'perdido') {
+                    $nuevosAccesorios[] = $acc;
+                    continue;
+                }
+
+                // Si no se recibió en este retorno, pasa a 'perdido'
+                if (!in_array($index, $recibidosIndices)) {
+                    $acc['estado'] = 'perdido';
+                    $tieneIncidencia = true;
+                }
+                
+                $nuevosAccesorios[] = $acc;
             }
+            
+            // Actualizar la herramienta con los nuevos estados de accesorios
+            $herramienta->update(['accesorios' => $nuevosAccesorios]);
+        }
+
+        // Si el usuario escribió algo en observaciones, marcamos como incidencia
+        if (!empty($request->observaciones)) {
+            $tieneIncidencia = true;
         }
 
         $path = $request->file('foto_devolucion')->store('devoluciones', 'public');
 
         $prestamo->update([
             'foto_devolucion' => $path,
-            'checklist_accesorios' => $request->has('accesorios') ? array_keys($request->accesorios) : [],
+            'checklist_accesorios' => $request->input('accesorios_recibidos', []),
+            'observaciones' => $request->observaciones,
             'estado' => 'devuelto',
             'fecha_devolucion_real' => Carbon::now(),
         ]);
 
-        $herramienta->update(['estado' => 'disponible']);
+        // Si hay incidencia (faltan piezas o hay reporte), o si el admin lo marcó manualmente, la herramienta va a mantenimiento
+        $nuevoEstado = $request->estado_final ?? ($tieneIncidencia ? 'mantenimiento' : 'disponible');
+        $herramienta->update(['estado' => $nuevoEstado]);
 
         // Cerrar la petición si todos los préstamos están devueltos
         if ($prestamo->peticion_id) {
@@ -113,7 +144,11 @@ class PrestamoController extends Controller
             }
         }
 
-        return redirect()->route('dashboard')->with('success', 'Checklist verificado y herramienta recibida.');
+        $msg = $tieneIncidencia 
+            ? 'Devolución registrada con NOVEDADES. La herramienta ha sido enviada a mantenimiento para revisión.' 
+            : 'Checklist verificado y herramienta recibida correctamente.';
+
+        return redirect()->route('dashboard')->with('success', $msg);
     }
 
     /**

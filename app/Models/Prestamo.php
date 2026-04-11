@@ -19,6 +19,7 @@ class Prestamo extends Model
         'estado',
         'foto_devolucion',
         'checklist_accesorios',
+        'observaciones',
     ];
 
     protected $casts = [

@@ -126,6 +126,7 @@
         .status-dot-circle.disponible   { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
         .status-dot-circle.prestado     { background: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
         .status-dot-circle.mantenimiento{ background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2); }
+        .status-dot-circle.perdido      { background: #4b5563; box-shadow: 0 0 0 3px rgba(75,85,99,.2); }
         .card-qr-badge {
             position: absolute; top: 12px; right: 12px;
             background: rgba(255,255,255,.9); border: 1px solid #e5e7eb;
@@ -169,6 +170,7 @@
         .status-pill.disponible    { background: #dcfce7; color: #15803d; }
         .status-pill.prestado      { background: #dbeafe; color: #1d4ed8; }
         .status-pill.mantenimiento { background: #fee2e2; color: #b91c1c; }
+        .status-pill.perdido       { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
         .status-pill .material-symbols-outlined { font-size: 13px; }
 
         .qr-mono { font-family: monospace; font-size: .8rem; color: #6b7280; background: #f3f4f6; padding: 3px 8px; border-radius: 6px; }
@@ -289,15 +291,39 @@
                                 <tr>
                                     <td>
                                         <div class="tool-name-cell">
-                                            <img src="{{ $herramienta->imagen_url }}" class="tool-thumb" alt="{{ $herramienta->nombre }}">
-                                            <span class="tool-name-text">{{ $herramienta->nombre }}</span>
+                                            <div class="relative">
+                                                <img src="{{ $herramienta->imagen_url }}" class="tool-thumb" alt="{{ $herramienta->nombre }}">
+                                                @if($herramienta->es_alto_valor)
+                                                    <div class="absolute -top-1 -right-1" title="Alto Valor">
+                                                        <span class="material-symbols-outlined text-corporate-gold bg-white rounded-full text-[14px]">stars</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="tool-name-text">{{ $herramienta->nombre }}</span>
+                                                @if($herramienta->es_alto_valor)
+                                                    <span class="text-[9px] text-corporate-gold font-bold uppercase tracking-tighter flex items-center gap-0.5">
+                                                        <span class="material-symbols-outlined text-[10px]">inventory_2</span> Alto Valor
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="status-pill {{ $herramienta->estado }}">
-                                            <span class="material-symbols-outlined">{{ $icons[$herramienta->estado] ?? 'help' }}</span>
-                                            {{ ucfirst($herramienta->estado) }}
-                                        </span>
+                                        <form action="{{ route('herramientas.status-update', $herramienta) }}" method="POST" onchange="this.submit()">
+                                            @csrf
+                                            <select name="estado" class="text-[10px] font-bold uppercase tracking-wider py-1 px-3 pr-8 rounded-lg border-none {{ $herramienta->estado }} focus:ring-0 cursor-pointer" 
+                                                style="
+                                                    @if($herramienta->estado == 'disponible') background: #dcfce7; color: #15803d; 
+                                                    @elseif($herramienta->estado == 'prestado') background: #dbeafe; color: #1d4ed8; 
+                                                    @else background: #fee2e2; color: #b91c1c; @endif
+                                                ">
+                                                <option value="disponible" {{ $herramienta->estado == 'disponible' ? 'selected' : '' }}>Disponible</option>
+                                                <option value="prestado" {{ $herramienta->estado == 'prestado' ? 'selected' : '' }} {{ $herramienta->estado !== 'prestado' ? 'disabled' : '' }}>Prestado</option>
+                                                <option value="mantenimiento" {{ $herramienta->estado == 'mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
+                                                <option value="perdido" {{ $herramienta->estado == 'perdido' ? 'selected' : '' }}>Perdido</option>
+                                            </select>
+                                        </form>
                                     </td>
                                     <td><span class="qr-mono">{{ $herramienta->codigo_qr }}</span></td>
                                     <td>
@@ -318,7 +344,7 @@
             @else
             {{-- VISTA ESTUDIANTE --}}
             <div class="catalog-grid" id="catalogGrid">
-                @forelse($herramientas as $herramienta)
+                @forelse($herramientas->where('estado', '!=', 'perdido') as $herramienta)
                     <div class="catalog-card {{ $herramienta->estado !== 'disponible' ? 'unavailable' : '' }}"
                          data-name="{{ strtolower($herramienta->nombre) }}"
                          data-estado="{{ $herramienta->estado }}">

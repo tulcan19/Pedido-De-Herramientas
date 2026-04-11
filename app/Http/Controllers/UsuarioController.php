@@ -75,6 +75,29 @@ class UsuarioController extends Controller
         return back()->with('success', 'Docente registrado exitosamente. La contraseña inicial es su número de cédula.');
     }
 
+    public function docentesUpdate(Request $request, Usuario $usuario)
+    {
+        if ($usuario->rol !== 'docente') {
+            return back()->with('error', 'Acción no permitida.');
+        }
+
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
+            'asignatura' => 'required|string|max:255',
+        ], [
+            'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
+        ]);
+
+        $usuario->update([
+            'nombre' => $request->nombre,
+            'cedula' => $request->cedula,
+            'asignatura' => $request->asignatura,
+        ]);
+
+        return back()->with('success', 'Datos del docente actualizados correctamente.');
+    }
+
     public function docentesDestroy(Usuario $usuario)
     {
         if ($usuario->rol !== 'docente') {

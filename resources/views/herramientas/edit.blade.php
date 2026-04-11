@@ -301,6 +301,7 @@
                                     <option value="disponible" {{ old('estado', $herramienta->estado) == 'disponible' ? 'selected' : '' }}>✅ Disponible</option>
                                     <option value="prestado"   {{ old('estado', $herramienta->estado) == 'prestado'   ? 'selected' : '' }}>🔵 Prestado</option>
                                     <option value="mantenimiento" {{ old('estado', $herramienta->estado) == 'mantenimiento' ? 'selected' : '' }}>🔴 En Mantenimiento</option>
+                                    <option value="perdido"    {{ old('estado', $herramienta->estado) == 'perdido'       ? 'selected' : '' }}>🔍 Perdido / Fuera de Servicio</option>
                                 </select>
                                 @error('estado')<div class="field-error">{{ $message }}</div>@enderror
                             </div>
@@ -312,13 +313,16 @@
                                     <span class="ml-2 font-bold" style="color:#16213e;">Herramienta de Alto Valor (Requiere foto y check-list al devolver)</span>
                                 </label>
 
-                                <div>
-                                    <label class="field-label" for="accesorios">Accesorios a verificar (Opcional)</label>
-                                    <input id="accesorios" name="accesorios" type="text" class="field-input mt-1" 
-                                           value="{{ old('accesorios', is_array($herramienta->accesorios) ? implode(', ', $herramienta->accesorios) : '') }}" 
-                                           placeholder="Ej: Cargador, Manual de uso, Puntas, Maletín">
-                                    <p class="field-hint">Separa cada ítem con una coma (,). Estos serán mostrados como una lista de verificación al devolver.</p>
-                                    @error('accesorios')<div class="field-error">{{ $message }}</div>@enderror
+                                <div class="mt-4">
+                                    <label class="field-label">Accesorios a verificar (Ingreso uno por uno)</label>
+                                    <div id="accesorios-container" class="space-y-2 mt-2">
+                                        <!-- Los campos se añadirán aquí dinámicamente -->
+                                    </div>
+                                    <button type="button" onclick="addAccesorio()" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-gray-500 hover:text-blue-700 transition-colors">
+                                        <span class="material-symbols-outlined text-sm">add_circle</span>
+                                        Añadir accesorio
+                                    </button>
+                                    <p class="field-hint mt-2">Cada accesorio ingresado será validado individualmente al momento de la devolución.</p>
                                 </div>
                             </div>
                         </div>
@@ -330,45 +334,69 @@
                             <span class="material-symbols-outlined">qr_code</span>
                             Código QR / Identificador
                         </div>
-                        <div class="qr-input-group">
-                            <input id="codigo_qr" name="codigo_qr" type="text" class="field-input mono"
-                                   value="{{ old('codigo_qr', $herramienta->codigo_qr) }}">
-                            <button type="button" id="btn-regenerar" class="btn-regenerar"
-                                onclick="if(confirm('¿ESTÁS SEGURO? Si regeneras el código, tendrás que imprimir y cambiar la etiqueta física.')){
-                                    document.getElementById('codigo_qr').value = '{{ $nextCode }}';
-                                    this.innerHTML = '<span class=\'material-symbols-outlined\'>check_circle</span> ¡Generado!';
-                                    this.style.background = '#d1fae5'; this.style.color='#065f46'; this.style.borderColor='#10b981';
-                                }">
-                                <span class="material-symbols-outlined">refresh</span>
-                                Regenerar
-                            </button>
-                        </div>
-                        <div class="field-hint">Al guardar con el campo vacío, se asignará un nuevo código único automáticamente.</div>
-                        @error('codigo_qr')<div class="field-error">{{ $message }}</div>@enderror
-
-                        {{-- Historial QR --}}
-                        @if($herramienta->historialQr->count() > 0)
-                        <div class="qr-history">
-                            <div class="qr-history-title">
-                                <span class="material-symbols-outlined">history</span>
-                                Historial de Identidad
-                            </div>
-                            @foreach($herramienta->historialQr as $historial)
-                                <div class="qr-history-item">
-                                    <div>
-                                        <div class="qr-code-text">{{ $historial->codigo_qr }}</div>
-                                        <div class="qr-date">Cambiado el {{ $historial->created_at->format('d/m/Y H:i') }}</div>
-                                    </div>
-                                    <button type="button" class="btn-restore"
-                                        onclick="if(confirm('¿Restaurar el código «{{ $historial->codigo_qr }}»?')){
-                                            document.getElementById('codigo_qr').value = '{{ $historial->codigo_qr }}';
+                        <div class="flex flex-col md:flex-row gap-6 items-start">
+                            <div class="flex-1 w-full">
+                                <div class="qr-input-group">
+                                    <input id="codigo_qr" name="codigo_qr" type="text" class="field-input mono"
+                                           value="{{ old('codigo_qr', $herramienta->codigo_qr) }}">
+                                    <button type="button" id="btn-regenerar" class="btn-regenerar"
+                                        onclick="if(confirm('¿ESTÁS SEGURO? Si regeneras el código, tendrás que imprimir y cambiar la etiqueta física.')){
+                                            document.getElementById('codigo_qr').value = '{{ $nextCode }}';
+                                            this.innerHTML = '<span class=\'material-symbols-outlined\'>check_circle</span> ¡Generado!';
+                                            this.style.background = '#d1fae5'; this.style.color='#065f46'; this.style.borderColor='#10b981';
                                         }">
-                                        Restaurar
+                                        <span class="material-symbols-outlined">refresh</span>
+                                        Regenerar
                                     </button>
                                 </div>
-                            @endforeach
+                                <div class="field-hint">Al guardar con el campo vacío, se asignará un nuevo código único automáticamente.</div>
+                                @error('codigo_qr')<div class="field-error">{{ $message }}</div>@enderror
+
+                                {{-- Historial QR --}}
+                                @if($herramienta->historialQr->count() > 0)
+                                <div class="qr-history">
+                                    <div class="qr-history-title">
+                                        <span class="material-symbols-outlined">history</span>
+                                        Historial de Identidad
+                                    </div>
+                                    @foreach($herramienta->historialQr as $historial)
+                                        <div class="qr-history-item">
+                                            <div>
+                                                <div class="qr-code-text">{{ $historial->codigo_qr }}</div>
+                                                <div class="qr-date">Cambiado el {{ $historial->created_at->format('d/m/Y H:i') }}</div>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="btn-restore"
+                                                    onclick="if(confirm('¿Restaurar el código «{{ $historial->codigo_qr }}»?')){
+                                                        document.getElementById('codigo_qr').value = '{{ $historial->codigo_qr }}';
+                                                    }">
+                                                    Restaurar
+                                                </button>
+                                                <button type="button" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                                                    onclick="if(confirm('¿Estás seguro de que quieres eliminar este registro del historial?')){
+                                                        document.getElementById('form-delete-historial-{{ $historial->id }}').submit();
+                                                    }">
+                                                    <span class="material-symbols-outlined text-base">delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+
+                            {{-- Visual QR Code (Scannable) --}}
+                            <div class="bg-white border-2 border-gray-100 rounded-2xl p-5 flex flex-col items-center shadow-sm w-full md:w-auto shrink-0 transition hover:border-[#cca75b]">
+                                <span class="text-[11px] font-extrabold text-[#16213e] uppercase tracking-widest mb-3 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm text-[#cca75b]">qr_code_scanner</span>
+                                    Link de Petición
+                                </span>
+                                <div class="p-2 bg-white rounded-xl shadow-inner border border-gray-100 mb-3" style="min-width: 136px; min-height: 136px;">
+                                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->margin(0)->color(22, 33, 62)->generate(route('peticiones.qr-add', $herramienta)) !!}
+                                </div>
+                                <span class="text-[10px] text-gray-400 text-center max-w-[150px] leading-tight">Imprime y pega este código en la herramienta para peticiones automáticas con el celular.</span>
+                            </div>
                         </div>
-                        @endif
                     </div>
 
                     {{-- FOOTER --}}
@@ -381,6 +409,15 @@
                     </div>
                 </form>
             </div>
+            
+            {{-- Formularios de eliminación de historial (deben estar fuera del form principal) --}}
+            @foreach($herramienta->historialQr as $historial)
+                <form id="form-delete-historial-{{ $historial->id }}" action="{{ route('herramientas.historial.destroy', $historial->id) }}" method="POST" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endforeach
+            
         </div>
     </div>
 
@@ -395,5 +432,42 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        function addAccesorio(value = '', estado = 'disponible') {
+            const container = document.getElementById('accesorios-container');
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200 bg-gray-50/50 p-2 rounded-xl border border-dashed border-gray-200';
+            div.innerHTML = `
+                <div class="flex-grow flex items-center gap-2">
+                    <input type="text" name="accesorios[${index}][nombre]" value="${value}" 
+                        class="field-input flex-1" style="padding: .5rem .75rem; font-size: .85rem;"
+                        placeholder="Nombre del accesorio">
+                    
+                    <select name="accesorios[${index}][estado]" class="text-[10px] font-bold uppercase tracking-wider py-1 px-3 pr-8 rounded-lg border-gray-300 focus:ring-0 cursor-pointer bg-white">
+                        <option value="disponible" ${estado === 'disponible' ? 'selected' : ''}>Disponible</option>
+                        <option value="mantenimiento" ${estado === 'mantenimiento' ? 'selected' : ''}>Mantenimiento</option>
+                        <option value="perdido" ${estado === 'perdido' ? 'selected' : ''}>Perdido</option>
+                    </select>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <span class="material-symbols-outlined text-lg">cancel</span>
+                </button>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').focus();
+        }
+
+        // Cargar accesorios existentes
+        window.addEventListener('load', () => {
+            @php
+                $accs = old('accesorios', $herramienta->accesorios_formateados ?? []);
+            @endphp
+            @if(is_array($accs))
+                @foreach($accs as $acc)
+                    addAccesorio('{{ $acc["nombre"] ?? "" }}', '{{ $acc["estado"] ?? "disponible" }}');
+                @endforeach
+            @endif
+        });
     </script>
 </x-app-layout>

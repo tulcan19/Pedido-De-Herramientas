@@ -28,6 +28,23 @@ class PeticionController extends Controller
         return response()->json(['success' => true, 'count' => count($cart)]);
     }
 
+    public function qrAddCart(Herramienta $herramienta)
+    {
+        if ($herramienta->estado !== 'disponible') {
+            return redirect()->route('herramientas.index')->with('error', 'La herramienta ' . $herramienta->nombre . ' no está disponible para préstamo en este momento.');
+        }
+
+        $cart = session()->get('carrito_peticion', []);
+        
+        if (!in_array($herramienta->id, $cart)) {
+            $cart[] = $herramienta->id;
+            session()->put('carrito_peticion', $cart);
+        }
+
+        return redirect()->route('peticiones.create')->with('success', '¡' . $herramienta->nombre . ' añadida a tu petición rápidamente a través de QR!');
+    }
+
+
     public function removeCart(Request $request, Herramienta $herramienta)
     {
         $cart = session()->get('carrito_peticion', []);
@@ -110,18 +127,45 @@ class PeticionController extends Controller
         return redirect()->route('dashboard')->with('success', 'Has enviado tu Formato de Petición exitosamente.');
     }
 
-    public function aprobar(Peticion $peticion)
+    public function entrega(Peticion $peticion)
     {
-        $peticion->update(['estado' => 'aprobado']);
+        if ($peticion->estado !== 'enviado') {
+            return redirect()->route('dashboard')->with('error', 'Esta petición no está pendiente de entrega.');
+        }
         
+        $peticion->load(['prestamos.herramienta', 'usuario']);
+        return view('peticiones.entrega', compact('peticion'));
+    }
+
+    public function procesarEntrega(Request $request, Peticion $peticion)
+    {
+        if ($peticion->estado !== 'enviado') {
+             return redirect()->route('dashboard')->with('error', 'Esta petición no está pendiente de entrega.');
+        }
+
+        $request->validate([
+            'foto_entrega' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+        ], [
+            'foto_entrega.required' => 'Es obligatorio capturar una fotografía de la entrega (Salida).',
+        ]);
+
+        $path = $request->file('foto_entrega')->store('entregas', 'public');
+
+        $peticion->update([
+            'estado' => 'aprobado', // En tu sistema 'aprobado' significa 'entregado/activo'
+            'foto_entrega' => $path
+        ]);
+
         foreach($peticion->prestamos as $prestamo) {
             $prestamo->update([
                 'estado' => 'activo',
-                // Usar el tiempo real solicitado por el estudiante desde el momento de la entrega
-                'fecha_devolucion_esperada' => Carbon::now()->addMinutes($peticion->minutos_estimados), 
+                'fecha_devolucion_esperada' => Carbon::now()->addMinutes($peticion->minutos_estimados),
             ]);
+            // El estado de la herramienta ya debería estar como 'prestado' por PeticionController@store
+            // Pero nos aseguramos:
+            $prestamo->herramienta->update(['estado' => 'prestado']);
         }
-        
-        return back()->with('success', 'Petición aprobada. Todas las herramientas fueron entregadas.');
+
+        return redirect()->route('dashboard')->with('success', 'Formato de Salida procesado. Herramientas entregadas correctamente.');
     }
 }

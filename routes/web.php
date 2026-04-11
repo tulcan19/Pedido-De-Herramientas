@@ -38,11 +38,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/usuarios/{usuario}/promover', [\App\Http\Controllers\UsuarioController::class, 'promover'])->name('usuarios.promover');
 
         // Recepción de Formato (Peticiones)
-        Route::post('/peticion/{peticion}/aprobar', [\App\Http\Controllers\PeticionController::class, 'aprobar'])->name('peticiones.aprobar');
+        // Salida de Herramientas (Entregas)
+        Route::get('/peticion/{peticion}/entrega', [\App\Http\Controllers\PeticionController::class, 'entrega'])->name('peticiones.entrega');
+        Route::post('/peticion/{peticion}/procesar-entrega', [\App\Http\Controllers\PeticionController::class, 'procesarEntrega'])->name('peticiones.procesar-entrega');
+        Route::post('/herramientas/{herramienta}/status', [\App\Http\Controllers\HerramientaController::class, 'actualizarEstado'])->name('herramientas.status-update');
+        Route::delete('/herramientas/historial/{historial}', [\App\Http\Controllers\HerramientaController::class, 'destroyHistory'])->name('herramientas.historial.destroy');
 
         // Gestión de Docentes
         Route::get('/docentes', [\App\Http\Controllers\UsuarioController::class, 'docentesIndex'])->name('docentes.index');
         Route::post('/docentes', [\App\Http\Controllers\UsuarioController::class, 'docentesStore'])->name('docentes.store');
+        Route::put('/docentes/{usuario}', [\App\Http\Controllers\UsuarioController::class, 'docentesUpdate'])->name('docentes.update');
         Route::delete('/docentes/{usuario}', [\App\Http\Controllers\UsuarioController::class, 'docentesDestroy'])->name('docentes.destroy');
 
         // Reportes PDF
@@ -69,6 +74,7 @@ Route::middleware('auth')->group(function () {
 
     // Carrito de Solicitud (Peticiones)
     Route::post('/peticion/add/{herramienta}', [\App\Http\Controllers\PeticionController::class, 'addCart'])->name('peticiones.add');
+    Route::get('/peticion/qr-add/{herramienta}', [\App\Http\Controllers\PeticionController::class, 'qrAddCart'])->name('peticiones.qr-add');
     Route::post('/peticion/remove/{herramienta}', [\App\Http\Controllers\PeticionController::class, 'removeCart'])->name('peticiones.remove');
     Route::get('/peticion/crear', [\App\Http\Controllers\PeticionController::class, 'create'])->name('peticiones.create');
     Route::post('/peticion/store', [\App\Http\Controllers\PeticionController::class, 'store'])->name('peticiones.store');

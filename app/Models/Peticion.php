@@ -16,6 +16,7 @@ class Peticion extends Model
         'practica',
         'minutos_estimados',
         'observaciones',
+        'foto_entrega',
         'estado',
     ];
 

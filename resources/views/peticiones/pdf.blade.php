@@ -120,8 +120,11 @@
                     <td style="text-align: center;">1</td>
                     <td>
                         <strong>{{ $prestamo->herramienta->nombre }}</strong>
-                        @if(is_array($prestamo->herramienta->accesorios) && count($prestamo->herramienta->accesorios) > 0)
-                            <div class="acc-list">Incluye: {{ implode(', ', $prestamo->herramienta->accesorios) }}</div>
+                        @php
+                            $accsDisponibles = array_filter($prestamo->herramienta->accesorios_formateados, fn($acc) => $acc['estado'] === 'disponible');
+                        @endphp
+                        @if(count($accsDisponibles) > 0)
+                            <div class="acc-list">Incluye: {{ implode(', ', array_column($accsDisponibles, 'nombre')) }}</div>
                         @endif
                     </td>
                     <td style="text-align: center; color: #64748b;">{{ $prestamo->herramienta->codigo_qr }}</td>

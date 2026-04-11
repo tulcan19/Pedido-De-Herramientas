@@ -114,17 +114,22 @@
                     </div>
                 </div>
 
-                @if(is_array($prestamo->herramienta->accesorios) && count($prestamo->herramienta->accesorios) > 0)
+                @if(count($prestamo->herramienta->accesorios_formateados) > 0)
                 <div class="form-section">
                     <h3 class="section-title"><span class="material-symbols-outlined">fact_check</span> Validación de Accesorios</h3>
-                    <p class="section-desc">Confirma físicamente que los siguientes elementos han sido devueltos. Todos son obligatorios para cerrar el préstamo.</p>
+                    <p class="section-desc">Confirma físicamente que los siguientes elementos han sido devueltos.</p>
                     
                     <div class="check-list">
-                        @foreach($prestamo->herramienta->accesorios as $index => $accesorio)
-                            <label class="check-item">
-                                <input type="checkbox" name="accesorios[{{ $index }}]" value="{{ $accesorio }}" class="check-input text-[#a07a2a] focus:ring-[#cca75b]">
-                                <span class="check-label">{{ $accesorio }}</span>
-                            </label>
+                        @foreach($prestamo->herramienta->accesorios_formateados as $index => $accesorio)
+                            @if($accesorio['estado'] != 'perdido')
+                                <label class="check-item group">
+                                    <input type="checkbox" name="accesorios_recibidos[]" value="{{ $index }}" class="check-input text-[#a07a2a] focus:ring-[#cca75b]">
+                                    <div class="flex flex-col">
+                                        <span class="check-label">{{ $accesorio['nombre'] }}</span>
+                                        <span class="text-[9px] text-gray-400 group-hover:text-corporate-blue transition-colors italic">Estado previo: {{ $accesorio['estado'] }}</span>
+                                    </div>
+                                </label>
+                            @endif
                         @endforeach
                     </div>
                     @error('accesorios')<div class="field-error">{{ $message }}</div>@enderror
@@ -149,11 +154,66 @@
                     @error('foto_devolucion')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
 
+                <div class="form-section">
+                    <h3 class="section-title"><span class="material-symbols-outlined">report_problem</span> Reporte de Novedades (Incidencias)</h3>
+                    <p class="section-desc">¿Ocurrió algún inconveniente? Si falta un accesorio, la herramienta está dañada o se perdió algo, descríbelo aquí.</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <textarea name="observaciones" rows="3" 
+                            class="w-full border-gray-300 focus:border-[#cca75b] focus:ring-[#cca75b] rounded-lg text-sm shadow-sm"
+                            placeholder="Ej: Se extravió el accesorio de ajuste..." id="observaciones"></textarea>
+                        <p class="text-[11px] text-gray-500 mt-2 italic flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">info</span>
+                            Nota: Si no marcas todos los accesorios arriba, debes escribir aquí la razón.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title"><span class="material-symbols-outlined">settings_backup_restore</span> Estado Final de la Herramienta</h3>
+                    <p class="section-desc">Define el estado en el que ingresará la herramienta al inventario tras esta recepción.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-green-50/50 transition-colors group has-[:checked]:border-green-500 has-[:checked]:bg-green-50/50">
+                            <input type="radio" name="estado_final" value="disponible" class="hidden" checked>
+                            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 text-sm">Disponible</div>
+                                <div class="text-[10px] text-gray-500">Listo para uso</div>
+                            </div>
+                        </label>
+
+                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-red-50/50 transition-colors group has-[:checked]:border-red-500 has-[:checked]:bg-red-50/50">
+                            <input type="radio" name="estado_final" value="mantenimiento" class="hidden">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">build_circle</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 text-sm">Mantenimiento</div>
+                                <div class="text-[10px] text-gray-500">Requiere revisión</div>
+                            </div>
+                        </label>
+
+                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50/50 transition-colors group has-[:checked]:border-gray-500 has-[:checked]:bg-gray-50/50">
+                            <input type="radio" name="estado_final" value="perdido" class="hidden">
+                            <div class="w-10 h-10 rounded-xl bg-gray-200 text-gray-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">search_off</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 text-sm">Perdido</div>
+                                <div class="text-[10px] text-gray-500">Dado de baja</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="form-footer">
                     <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Cancelar</a>
                     <button type="submit" class="btn-submit" id="submitBtn">
                         <span class="material-symbols-outlined">task_alt</span>
-                        Aprobar Devolución
+                        Enviar Reporte de Devolución
                     </button>
                 </div>
             </form>
@@ -167,6 +227,7 @@
         const cameraUI = document.getElementById('cameraUI');
         const preview = document.getElementById('photoPreview');
         const btnChange = document.getElementById('btnChangePhoto');
+        const obsInput = document.getElementById('observaciones');
 
         fileInput.addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
@@ -187,14 +248,17 @@
         form.addEventListener('submit', function(e) {
             // Check checkboxes
             const checkboxes = document.querySelectorAll('.check-input');
+            let allChecked = true;
             if (checkboxes.length > 0) {
-                let allChecked = true;
                 checkboxes.forEach(cb => { if(!cb.checked) allChecked = false; });
-                if (!allChecked) {
-                    e.preventDefault();
-                    alert('⚠️ Debes confirmar (marcar) todos los accesorios de la lista para proceder.');
-                    return;
-                }
+            }
+
+            // Si no está todo marcado, las observaciones son obligatorias
+            if (!allChecked && obsInput.value.trim().length < 5) {
+                e.preventDefault();
+                alert('⚠️ Faltan accesorios por marcar. Debes explicar la novedad en el campo de observaciones (min 5 caracteres).');
+                obsInput.focus();
+                return;
             }
 
             // Check photo

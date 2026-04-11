@@ -41,15 +41,25 @@ class HerramientaController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo_qr' => 'nullable|string|unique:herramientas,codigo_qr',
-            'estado' => 'required|in:disponible,prestado,mantenimiento',
+            'estado' => 'required|in:disponible,prestado,mantenimiento,perdido',
             'ubicacion' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'accesorios' => 'nullable|string',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'accesorios' => 'nullable|array',
         ]);
 
         $validated['es_alto_valor'] = $request->has('es_alto_valor');
-        if (!empty($validated['accesorios'])) {
-            $validated['accesorios'] = array_map('trim', explode(',', $validated['accesorios']));
+        
+        if ($request->has('accesorios') && is_array($request->accesorios)) {
+            $processed = [];
+            foreach ($request->accesorios as $item) {
+                if (!empty($item['nombre'])) {
+                    $processed[] = [
+                        'nombre' => trim($item['nombre']),
+                        'estado' => $item['estado'] ?? 'disponible'
+                    ];
+                }
+            }
+            $validated['accesorios'] = !empty($processed) ? $processed : null;
         } else {
             $validated['accesorios'] = null;
         }
@@ -99,10 +109,10 @@ class HerramientaController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo_qr' => 'nullable|string|unique:herramientas,codigo_qr,' . $herramienta->id,
-            'estado' => 'required|in:disponible,prestado,mantenimiento',
+            'estado' => 'required|in:disponible,prestado,mantenimiento,perdido',
             'ubicacion' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'accesorios' => 'nullable|string',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'accesorios' => 'nullable|array',
         ], [
             'codigo_qr.unique' => 'CONFLICTO: Este código ya está en uso. Revisa la herramienta: ' . 
                 (\App\Models\Herramienta::where('codigo_qr', $request->codigo_qr)->first()->nombre ?? 'Desconocida'),
@@ -117,8 +127,18 @@ class HerramientaController extends Controller
         }
 
         $validated['es_alto_valor'] = $request->has('es_alto_valor');
-        if (!empty($validated['accesorios'])) {
-            $validated['accesorios'] = array_map('trim', explode(',', $validated['accesorios']));
+        
+        if ($request->has('accesorios') && is_array($request->accesorios)) {
+            $processed = [];
+            foreach ($request->accesorios as $item) {
+                if (!empty($item['nombre'])) {
+                    $processed[] = [
+                        'nombre' => trim($item['nombre']),
+                        'estado' => $item['estado'] ?? 'disponible'
+                    ];
+                }
+            }
+            $validated['accesorios'] = !empty($processed) ? $processed : null;
         } else {
             $validated['accesorios'] = null;
         }
@@ -142,5 +162,28 @@ class HerramientaController extends Controller
 
         return redirect()->route('herramientas.index')
             ->with('success', 'Herramienta eliminada exitosamente.');
+    }
+
+    /**
+     * Update only the status of the tool (Fast Update).
+     */
+    public function actualizarEstado(Request $request, Herramienta $herramienta)
+    {
+        $request->validate([
+            'estado' => 'required|in:disponible,prestado,mantenimiento,perdido',
+        ]);
+
+        $herramienta->update(['estado' => $request->estado]);
+
+        return back()->with('success', 'Estado de la herramienta actualizado a: ' . ucfirst($request->estado));
+    }
+
+    /**
+     * Remove the specified history item.
+     */
+    public function destroyHistory(\App\Models\HistorialQr $historial)
+    {
+        $historial->delete();
+        return back()->with('success', 'Registro de historial eliminado.');
     }
 }

@@ -23,6 +23,26 @@ class Herramienta extends Model
     ];
 
     /**
+     * Get accessories normalized as an array of objects.
+     */
+    public function getAccesoriosFormateadosAttribute()
+    {
+        $items = $this->accesorios ?? [];
+        return array_map(function ($item) {
+            if (is_string($item)) {
+                return [
+                    'nombre' => $item,
+                    'estado' => 'disponible'
+                ];
+            }
+            return [
+                'nombre' => $item['nombre'] ?? 'Sin nombre',
+                'estado' => $item['estado'] ?? 'disponible'
+            ];
+        }, $items);
+    }
+
+    /**
      * Get the tool's image URL.
      */
     public function getImagenUrlAttribute()
