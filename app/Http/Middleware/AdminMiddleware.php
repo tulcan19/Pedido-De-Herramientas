@@ -15,10 +15,29 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->esAdmin()) {
-            return $next($request);
+        if ($request->user()) {
+            if ($request->user()->esAdmin()) {
+                return $next($request);
+            }
+
+            if ($request->user()->esDocente()) {
+                $allowedForDocentes = [
+                    'usuarios.index',
+                    'usuarios.promover',
+                    'usuarios.update',
+                    'reportes.bitacora',
+                    'peticiones.entrega',
+                    'peticiones.procesar-entrega',
+                    'herramientas.status-update',
+                    'herramientas.historial.destroy',
+                ];
+
+                if (in_array($request->route()->getName(), $allowedForDocentes)) {
+                    return $next($request);
+                }
+            }
         }
 
-        return redirect('/dashboard')->with('error', 'No tienes permisos de administrador para acceder a esta sección.');
+        return redirect('/dashboard')->with('error', 'No tienes permisos para acceder a esta sección.');
     }
 }

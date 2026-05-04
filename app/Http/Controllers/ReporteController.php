@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class ReporteController extends Controller
 {
     /**
-     * Vista principal de reportes para el administrador.
+     * Vista principal de reportes para el coordinador.
      */
     public function index()
     {
@@ -22,11 +22,26 @@ class ReporteController extends Controller
     }
 
     /**
+     * Dashboard interactivo de bitácoras.
+     */
+    public function bitacora(Request $request)
+    {
+        $query = Prestamo::with(['usuario', 'herramienta'])->latest();
+
+        if ($request->filled('fecha')) {
+            $query->whereDate('created_at', $request->fecha);
+        }
+
+        $prestamos = $query->paginate(20)->withQueryString();
+        return view('reportes.bitacora', compact('prestamos'));
+    }
+
+    /**
      * Descargar el PDF de una petición individual (Solo Admin).
      */
     public function descargarPeticion(Peticion $peticion)
     {
-        // Solo el administrador puede descargar el reporte oficial
+        // Solo el coordinador puede descargar el reporte oficial
         if (!Auth::user()->esAdmin()) {
             abort(403, 'Acceso restringido.');
         }

@@ -25,8 +25,8 @@
             .text-corporate-gold { color: #cca75b; }
         </style>
     </head>
-    <body class="font-sans antialiased text-white selection:bg-corporate-gold selection:text-white bg-corporate-blue">
-        <div class="min-h-screen flex flex-col lg:flex-row bg-corporate-blue relative">
+    <body class="font-sans antialiased text-white selection:bg-corporate-gold selection:text-white bg-corporate-blue overflow-x-hidden">
+        <div class="min-h-screen flex flex-col lg:flex-row bg-corporate-blue relative overflow-hidden">
             
             <!-- Side A: Form and Branding -->
             <div class="z-20 flex flex-col justify-center w-full lg:w-5/12 p-6 sm:p-10 lg:p-20 bg-corporate-blue shadow-[30px_0_60px_rgba(0,0,0,0.5)] relative min-h-screen shrink-0">
@@ -57,7 +57,7 @@
             </div>
 
             <!-- Side B: Immersive Image -->
-            <div class="hidden lg:block lg:w-7/12 relative min-h-screen">
+            <div class="hidden lg:block lg:w-7/12 relative min-h-screen overflow-hidden">
                 <div class="absolute inset-0 bg-[#23325b] opacity-40 z-10 mix-blend-multiply transition-opacity duration-1000"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-corporate-blue via-transparent to-transparent z-10"></div>
                 <img src="{{ asset('img/bg.png') }}" class="absolute inset-0 w-full h-full object-cover object-center scale-[1.05] animate-pulse-slow" alt="Fondo Taller" />
@@ -73,11 +73,26 @@
         </div>
 
         <style>
-            .animate-pulse-slow { animation: pulse-slow 8s infinite alternate; }
+            .animate-pulse-slow { animation: pulse-slow 15s infinite alternate; }
             @keyframes pulse-slow {
-                from { transform: scale(1.05); }
-                to { transform: scale(1.15); }
+                from { transform: scale(1.02); }
+                to { transform: scale(1.1); }
             }
+            
+            .animate-fade-in-up {
+                animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            
+            @keyframes fade-in-up {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .stagger-1 { animation-delay: 0.1s; }
+            .stagger-2 { animation-delay: 0.2s; }
+            .stagger-3 { animation-delay: 0.3s; }
+            .stagger-4 { animation-delay: 0.4s; }
+            .stagger-5 { animation-delay: 0.5s; }
         </style>
     </body>
 </html>

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 class UsuarioController extends Controller
 {
     /**
-     * Mostrar la lista de estudiantes para el administrador.
+     * Mostrar la lista de estudiantes para el coordinador.
      */
     public function index()
     {
@@ -43,6 +43,41 @@ class UsuarioController extends Controller
         ]);
 
         return back()->with('success', "¡{$usuario->nombre} ha sido promovido al " . $usuario->semestre . "° Semestre!");
+    }
+
+    /**
+     * Actualizar información del estudiante.
+     */
+    public function estudiantesUpdate(Request $request, Usuario $usuario)
+    {
+        if ($usuario->rol !== 'estudiante') {
+            return back()->with('error', 'Acción no permitida.');
+        }
+
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
+            'semestre' => 'required|integer|min:1|max:6',
+            'password' => 'nullable|string|min:4',
+        ], [
+            'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
+        ]);
+
+        $dataToUpdate = [
+            'nombre' => $request->nombre,
+            'cedula' => $request->cedula,
+            'semestre' => $request->semestre,
+        ];
+
+        if ($request->filled('password')) {
+            $dataToUpdate['password'] = Hash::make($request->password);
+        } elseif ($usuario->cedula !== $request->cedula) {
+            $dataToUpdate['password'] = Hash::make($request->cedula);
+        }
+
+        $usuario->update($dataToUpdate);
+
+        return back()->with('success', 'Datos del estudiante actualizados correctamente.');
     }
 
     /**
@@ -85,15 +120,24 @@ class UsuarioController extends Controller
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
             'asignatura' => 'required|string|max:255',
+            'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
         ]);
 
-        $usuario->update([
+        $dataToUpdate = [
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
             'asignatura' => $request->asignatura,
-        ]);
+        ];
+
+        if ($request->filled('password')) {
+            $dataToUpdate['password'] = Hash::make($request->password);
+        } elseif ($usuario->cedula !== $request->cedula) {
+            $dataToUpdate['password'] = Hash::make($request->cedula);
+        }
+
+        $usuario->update($dataToUpdate);
 
         return back()->with('success', 'Datos del docente actualizados correctamente.');
     }

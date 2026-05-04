@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-                {{ Auth::user()->esAdmin() ? __('Panel General del Taller') : __('Panel del Estudiante') }}
+                {{ Auth::user()->esAdmin() ? __('Panel de Coordinación del Taller') : (Auth::user()->esDocente() ? __('Panel del Docente') : __('Panel del Estudiante')) }}
             </h2>
             @if(!Auth::user()->esAdmin())
                 <div class="text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
@@ -206,6 +206,7 @@
             width: 180px; height: 180px;
             background: rgba(204,167,91,.07);
             border-radius: 50%;
+            pointer-events: none;
         }
         .cta-card-icon {
             width: 54px; height: 54px;
@@ -237,7 +238,20 @@
         @media (min-width: 768px) {
             .cta-btn { width: auto; }
         }
-        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(204,167,91,.4); }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(204,167,91,0.4); }
+
+        .cta-card {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cta-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-color: rgba(204,167,91,0.5);
+        }
+        .cta-card:active {
+            transform: translateY(-2px);
+        }
 
         /* ── SECTION HEADER ── */
         .section-header { 
@@ -333,7 +347,7 @@
                 <p class="hero-sub">
                     {{ Auth::user()->esAdmin()
                         ? 'Vista general de todas las herramientas del taller'
-                        : 'Revisa el estado de tus préstamos y accede al catálogo' }}
+                        : (Auth::user()->esDocente() ? 'Supervisa las herramientas y préstamos de tus estudiantes' : 'Revisa el estado de tus préstamos y accede al catálogo') }}
                 </p>
                 <p class="hero-time">
                     <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
@@ -354,9 +368,9 @@
             <div class="stat-card navy">
                 <div class="stat-shine"></div>
                 <div class="stat-icon"><span class="material-symbols-outlined">warning</span></div>
-                <div class="stat-label">Próximas a vencer</div>
+                <div class="stat-label">Herramientas Especiales</div>
                 <div class="stat-number">{{ $alertas }}</div>
-                <div class="stat-desc">requieren atención</div>
+                <div class="stat-desc">de alto valor en uso</div>
             </div>
             <div class="stat-card accent">
                 <div class="stat-shine"></div>
@@ -371,7 +385,7 @@
         <div class="main-content">
 
             {{-- CTA --}}
-            <div class="cta-card">
+            <div class="cta-card" onclick="window.location='{{ route('herramientas.index') }}'">
                 <div class="cta-card-icon">
                     <span class="material-symbols-outlined">qr_code_scanner</span>
                 </div>
@@ -385,43 +399,69 @@
                 </a>
             </div>
 
+
             {{-- Peticiones Pendientes --}}
-            @if($peticiones->count() > 0)
-            <div style="margin-bottom: 2.5rem;">
+            @if((Auth::user()->esAdmin() || Auth::user()->esDocente()) && $peticiones->count() > 0)
+            <div class="mb-10">
                 <div class="section-header">
                     <div class="section-title">
-                        <span class="material-symbols-outlined">assignment_ind</span>
-                        {{ Auth::user()->esAdmin() ? 'Peticiones en Ventanilla' : 'Tus Solicitudes en Espera' }}
+                        <span class="material-symbols-outlined">assignment</span>
+                        Peticiones Pendientes de Aprobación
                     </div>
                 </div>
 
                 <div class="tools-grid">
                     @foreach($peticiones as $peticion)
-                        <div class="tool-card" style="border: 2px solid #cca75b;">
-                            <div class="tool-card-body" style="background:#fdf8ee;">
-                                <div class="tool-card-top mb-1">
-                                    <div class="tool-name">Doc. Petición #{{ str_pad($peticion->id, 4, '0', STR_PAD_LEFT) }}</div>
-                                    <span class="tool-status" style="background:#fef08a; color:#854d0e;">En Ventanilla</span>
+                        <div class="tool-card">
+                            <div class="tool-card-body">
+                                <div class="tool-card-top">
+                                    <div class="tool-name">Petición #{{ $peticion->id }}</div>
+                                    <span class="tool-status {{ $peticion->docente_aprueba ? 'prestado' : 'reservado' }}">
+                                        {{ $peticion->docente_aprueba ? 'Autorizado' : 'Esperando Docente' }}
+                                    </span>
                                 </div>
-                                <div class="text-xs mb-1"><span class="font-bold text-[#16213e]">Estudiante:</span> {{ $peticion->usuario->nombre }}</div>
-                                <div class="text-xs mb-1"><span class="font-bold text-[#16213e]">Práctica:</span> {{ Str::limit($peticion->practica, 30) }}</div>
-                                <div class="text-[11px] mb-3 text-gray-500 font-bold flex items-center justify-between border-t border-gray-200 pt-2 mt-2">
-                                    <span>{{ $peticion->prestamos->count() }} herramientas solicitadas</span>
+                                <div class="tool-desc" style="line-height: 1.4;">
+                                    <strong>Estudiante:</strong> {{ $peticion->usuario->nombre }} <br>
+                                    <strong>Asignatura:</strong> {{ $peticion->asignatura }} <br>
+                                    <strong>Práctica:</strong> {{ $peticion->practica }}
                                 </div>
                                 
-                                @if(Auth::user()->esAdmin() && $peticion->estado == 'enviado')
-                                    <div class="flex gap-2">
-                                        <a href="{{ route('reportes.peticion', $peticion) }}" class="flex-shrink-0 p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors shadow-sm flex items-center justify-center" title="Descargar Formato PDF">
-                                            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                                        </a>
-                                        <a href="{{ route('peticiones.entrega', $peticion) }}" class="w-full text-[11px] uppercase tracking-wider font-bold py-2 bg-[#23325b] text-white rounded-lg hover:bg-[#16213e] transition-colors shadow-md flex justify-center items-center gap-1">
-                                            <span class="material-symbols-outlined text-[16px]">touch_app</span> Entregar a Estudiante
-                                        </a>
-                                    </div>
-                                @endif
-                                @if(!Auth::user()->esAdmin())
-                                    <div class="mt-auto w-full text-center text-[11px] text-gray-500 italic py-2">Acércate a ventanilla para recibirlas.</div>
-                                @endif
+                                <div class="text-xs mb-3 text-gray-500">
+                                    {{ $peticion->prestamos->count() }} herramientas solicitadas.
+                                </div>
+
+                                <div class="mt-auto pt-3 border-t border-gray-100">
+                                    @if(Auth::user()->esDocente() && !$peticion->docente_aprueba)
+                                        <form action="{{ route('peticiones.aprobar-docente', $peticion) }}" method="POST" onsubmit="return confirm('¿Confirmas que autorizas esta petición?');">
+                                            @csrf
+                                            <button type="submit" class="w-full text-[11px] uppercase tracking-wider font-bold py-2 bg-[#fdf8ee] text-[#a07a2a] border border-[#cca75b] rounded-lg hover:bg-[#fdf0d0] transition-colors shadow-sm">
+                                                Aprobar Petición
+                                            </button>
+                                        </form>
+                                    @elseif(Auth::user()->esAdmin())
+                                        @if($peticion->docente_aprueba)
+                                            <a href="{{ route('peticiones.entrega', $peticion) }}" class="block w-full text-center text-[11px] uppercase tracking-wider font-bold py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-sm">
+                                                Procesar Entrega
+                                            </a>
+                                        @else
+                                            <div class="flex flex-col gap-2">
+                                                <div class="text-[10px] uppercase font-bold text-center text-gray-400">
+                                                    Esperando al docente
+                                                </div>
+                                                <form action="{{ route('peticiones.aprobar-docente', $peticion) }}" method="POST" onsubmit="return confirm('¿Confirmas que deseas forzar la autorización de esta petición como Coordinador?');">
+                                                    @csrf
+                                                    <button type="submit" class="w-full text-[11px] uppercase tracking-wider font-bold py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm">
+                                                        Aceptar Petición
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div class="text-[11px] uppercase font-bold text-center text-gray-500 border border-gray-200 rounded-lg py-2">
+                                            En proceso
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -434,7 +474,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <span class="material-symbols-outlined">inventory_2</span>
-                        {{ Auth::user()->esAdmin() ? 'Herramientas Prestadas (General)' : 'Mis Herramientas Activas' }}
+                        {{ Auth::user()->esAdmin() ? 'Herramientas Prestadas (General)' : (Auth::user()->esDocente() ? 'Herramientas en uso por tus estudiantes' : 'Mis Herramientas Activas') }}
                     </div>
                     <a href="#" class="section-link">Ver historial completo →</a>
                 </div>
@@ -442,21 +482,7 @@
                 <div class="tools-grid">
                     @forelse($prestamos as $prestamo)
                         @php
-                            $diff = now()->diff($prestamo->fecha_devolucion_esperada, false);
-                            $minsTotales = $diff->invert ? 0 : ($diff->days * 24 * 60) + ($diff->h * 60) + $diff->i;
-                            $labelTiempo = '';
-                            
-                            if ($diff->invert) {
-                                $labelTiempo = 'Expirado';
-                            } elseif ($diff->h > 0 || $diff->days > 0) {
-                                $horas = ($diff->days * 24) + $diff->h;
-                                $labelTiempo = $horas . 'h ' . $diff->i . 'm';
-                            } else {
-                                $labelTiempo = $diff->i . ' min';
-                            }
-
-                            $porcentaje = max(0, min(100, ($minsTotales / 60) * 100));
-                            $isAlert = $minsTotales <= 15 || $prestamo->estado == 'atrasado' || $diff->invert;
+                            $isAlert = $prestamo->estado == 'atrasado';
                         @endphp
                         <div class="tool-card {{ $isAlert ? 'alert' : '' }}">
                             <div class="tool-card-img">
@@ -472,35 +498,37 @@
                                     {{ $prestamo->herramienta->descripcion ?? 'Herramienta de taller' }}
                                 </div>
                                 
-                                @if(Auth::user()->esAdmin())
+                                @if(Auth::user()->esAdmin() || Auth::user()->esDocente())
                                     <div class="text-xs mb-2 py-1 px-2 bg-gray-50 rounded-lg border border-gray-100">
                                         <span class="font-bold text-[#16213e]">Ocupado por:</span> 
-                                        <span class="text-indigo-600 font-semibold">{{ $prestamo->usuario->nombre }}</span>
+                                        <span class="text-indigo-600 font-semibold">{{ $prestamo->usuario->nombre ?? 'Usuario' }}</span>
                                     </div>
                                 @endif
                                 <div class="mt-auto">
-                                    <div class="tool-timer-row">
-                                        <span class="tool-timer-label">Vence en</span>
-                                        <span class="tool-timer-pill {{ $isAlert ? 'bad' : 'ok' }}">
-                                            {{ $labelTiempo }}
-                                        </span>
-                                    </div>
-                                    <div class="progress-bar-track">
-                                        <div class="progress-bar-fill {{ $isAlert ? 'bad' : 'ok' }}" style="width:{{ $porcentaje }}%"></div>
-                                    </div>
+                                    {{-- Timer y progreso eliminados (Sin límite de tiempo) --}}
                                     @if($prestamo->estado !== 'devuelto')
                                         <div class="mt-3 pt-3 border-t border-gray-100">
-                                            @if($prestamo->herramienta->es_alto_valor && !Auth::user()->esAdmin())
-                                                <a href="{{ route('prestamos.devolver', $prestamo) }}" class="block w-full text-center text-[11px] uppercase tracking-wider font-bold py-2 bg-[#fdf8ee] text-[#a07a2a] border border-[#cca75b] rounded-lg hover:bg-[#fdf0d0] transition-colors shadow-sm">
-                                                    Check-list de Recepción
-                                                </a>
+                                            @if($prestamo->estado === 'reservado')
+                                                <div class="text-[11px] uppercase tracking-wider font-bold text-center text-gray-400 border border-gray-200 rounded-lg py-2">
+                                                    @if($prestamo->peticion && !$prestamo->peticion->docente_aprueba)
+                                                        {{ Auth::user()->esAdmin() ? 'Pendiente de aprobación' : 'Esperando al docente' }}
+                                                    @else
+                                                        {{ Auth::user()->esAdmin() ? 'Pendiente de entrega' : 'Esperando en ventanilla' }}
+                                                    @endif
+                                                </div>
                                             @else
-                                                <form action="{{ route('prestamos.devolucion-rapida', $prestamo) }}" method="POST" class="w-full" onsubmit="return confirm('¿Confirmar que recibiste esta herramienta en buen estado?');">
-                                                    @csrf
-                                                    <button type="submit" class="w-full text-[11px] uppercase tracking-wider font-bold py-2 bg-white text-[#23325b] border border-[#23325b]/20 rounded-lg hover:bg-[#f0f3f8] transition-colors shadow-sm">
-                                                        Recibir Herramienta
-                                                    </button>
-                                                </form>
+                                                @if($prestamo->herramienta->es_alto_valor)
+                                                    <a href="{{ route('prestamos.devolver', $prestamo) }}" class="block w-full text-center text-[11px] uppercase tracking-wider font-bold py-2 bg-[#fdf8ee] text-[#a07a2a] border border-[#cca75b] rounded-lg hover:bg-[#fdf0d0] transition-colors shadow-sm">
+                                                        {{ Auth::user()->esAdmin() || Auth::user()->esDocente() ? 'Procesar Entrega (Formato)' : 'Entregar Herramientas' }}
+                                                    </a>
+                                                @else
+                                                    <form action="{{ route('prestamos.devolucion-rapida', $prestamo) }}" method="POST" class="w-full" onsubmit="return confirm('{{ Auth::user()->esAdmin() || Auth::user()->esDocente() ? "¿Confirmar que recibiste esta herramienta en buen estado?" : "¿Confirmas que deseas entregar esta herramienta?" }}');">
+                                                        @csrf
+                                                        <button type="submit" class="w-full text-[11px] uppercase tracking-wider font-bold py-2 bg-white text-[#23325b] border border-[#23325b]/20 rounded-lg hover:bg-[#f0f3f8] transition-colors shadow-sm">
+                                                            {{ Auth::user()->esAdmin() || Auth::user()->esDocente() ? 'Recibir Herramienta' : 'Entregar Herramientas' }}
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endif
                                         </div>
                                     @endif

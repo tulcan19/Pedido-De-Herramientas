@@ -1,277 +1,356 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ route('dashboard') }}"
-               style="color:#23325b;"
-               class="inline-flex items-center gap-1 text-sm font-semibold hover:opacity-70 transition">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1 text-sm font-semibold hover:opacity-70 transition" style="color:#23325b;">
                 <span class="material-symbols-outlined text-base">arrow_back</span>
                 Dashboard
             </a>
             <span class="text-gray-300">/</span>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Check-list de Recepción
+                Formato de Entrega (Devolución)
             </h2>
         </div>
     </x-slot>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
-
-        .checklist-root { font-family: 'Outfit', sans-serif; background: #f0f3f8; min-height: 100vh; padding-bottom: 3rem; }
-
-        .form-wrap { max-width: 800px; margin: 2rem auto 0; padding: 0 1.5rem; }
-        .form-card { background: #fff; border-radius: 22px; box-shadow: 0 8px 40px rgba(0,0,0,.08); overflow: hidden; border: 1.5px solid #e5e7eb; }
-
-        /* ── HEADER TOOL ── */
-        .tool-header {
-            background: linear-gradient(135deg, #16213e 0%, #23325b 60%, #2a3d6e 100%);
-            padding: 2rem; color: #fff; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;
-            position: relative; overflow: hidden;
+        .sheet-root { font-family: 'Outfit', sans-serif; background: #f0f3f8; min-height: 100vh; padding-bottom: 3rem; }
+        .sheet-wrap { max-width: 900px; margin: 2rem auto 0; padding: 0 1.5rem; }
+        
+        .paper-sheet {
+            background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.08);
+            padding: 3rem 4rem; position: relative; border-top: 10px solid #cca75b;
         }
-        .tool-header::after {
-            content: ''; position: absolute; right: -30px; top: -30px;
-            width: 150px; height: 150px; background: rgba(204,167,91,.15); border-radius: 50%;
-        }
-        .tool-img {
-            width: 80px; height: 80px; background: rgba(255,255,255,.1);
-            border: 2px solid rgba(204,167,91,.4); border-radius: 16px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; z-index: 2;
-        }
-        .tool-img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: luminosity; }
-        .tool-info { position: relative; z-index: 2; flex: 1; }
-        .tool-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; background: rgba(204,167,91,.2); border: 1px solid rgba(204,167,91,.4); color: #cca75b; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
-        .tool-title { font-size: 1.4rem; font-weight: 800; line-height: 1.2; margin-bottom: .2rem; }
-        .tool-user { font-size: .85rem; color: #a0b0cc; display: flex; align-items: center; gap: 5px; }
-        .tool-user .material-symbols-outlined { font-size: 14px; }
 
-        /* ── SECTIONS ── */
-        .form-section { padding: 2rem; border-bottom: 1px solid #f1f5f9; }
-        .form-section:last-of-type { border-bottom: none; }
-        .section-title { font-size: 1rem; font-weight: 800; color: #16213e; display: flex; align-items: center; gap: 8px; margin-bottom: .4rem; }
-        .section-title .material-symbols-outlined { color: #cca75b; }
-        .section-desc { font-size: .85rem; color: #6b7280; margin-bottom: 1.5rem; }
+        /* HEADER */
+        .sheet-header { border-bottom: 2px solid #23325b; padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sheet-title-area h1 { font-size: 1.3rem; font-weight: 800; color: #16213e; text-transform: uppercase; letter-spacing: .05em; line-height: 1.3; max-width: 450px; }
+        .sheet-logo-area { text-align: right; }
+        .sheet-logo-area span { display: block; font-size: 2rem; font-weight: 900; color: #d1d5db; letter-spacing: -1px; }
 
-        /* ── CHECKBOX LIST ── */
-        .check-list { display: flex; flex-direction: column; gap: .75rem; }
-        .check-item {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 1rem 1.25rem; background: #f8fafc; border: 1.5px solid #e5e7eb;
-            border-radius: 12px; cursor: pointer; transition: all .2s;
+        /* FORM GRID */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 3rem; margin-bottom: 2.5rem; }
+        .input-group { display: flex; align-items: flex-end; gap: .5rem; }
+        .input-label { font-weight: 700; color: #4b5563; font-size: .95rem; white-space: nowrap; }
+        .input-line { flex: 1; border: none; border-bottom: 1.5px solid #9ca3af; padding: .25rem 0; font-family: 'Outfit', sans-serif; font-size: .95rem; color: #1f2937; background: transparent; transition: border-color .2s; }
+        
+        /* TABLE */
+        .tools-table-wrapper { border: 1.5px solid #16213e; border-radius: 8px; overflow: hidden; margin-bottom: 2rem; }
+        .tools-table { width: 100%; border-collapse: collapse; }
+        .tools-table th { background: #f8fafc; border-bottom: 1.5px solid #16213e; border-right: 1.5px solid #16213e; padding: .8rem; font-size: .75rem; font-weight: 800; text-align: center; color: #16213e; text-transform: uppercase; }
+        .tools-table th:last-child { border-right: none; }
+        .tools-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: .8rem; font-size: .85rem; color: #374151; vertical-align: middle; }
+        .tools-table td:last-child { border-right: none; }
+        
+        /* SECTIONS */
+        .section-header { 
+            background: #f1f5f9; padding: 0.5rem 1rem; font-weight: 800; font-size: 0.8rem; 
+            color: #23325b; text-transform: uppercase; margin: 2rem 0 1rem 0; border-radius: 4px;
+            clear: both;
         }
-        .check-item:hover { border-color: #cca75b; background: #fdf8ee; }
-        .check-item input[type="checkbox"] { width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 6px; text-color: #a07a2a; cursor: pointer; }
-        .check-item input[type="checkbox"]:checked { border-color: #cca75b; background-color: #cca75b; }
-        .check-label { font-size: .95rem; font-weight: 600; color: #374151; flex: 1; user-select: none; }
+        .section-header:first-child { margin-top: 0; }
 
-        /* ── CAMERA ── */
-        .camera-area {
-            border: 2px dashed #cbd5e1; border-radius: 16px; background: #f8fafc;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: all .2s;
-            position: relative; overflow: hidden;
+        /* CAMERA AREA */
+        .camera-box {
+            display: block;
+            border: 2px dashed #cbd5e1; border-radius: 12px; padding: 2rem; text-align: center;
+            cursor: pointer; transition: all 0.2s; background: #f8fafc; margin: 1rem 0 2rem;
+            width: 100%;
         }
-        .camera-area:hover { border-color: #cca75b; background: #fdf8ee; }
-        .camera-area.has-image { padding: 0; border-style: solid; border-color: #cca75b; }
-        .camera-icon { width: 64px; height: 64px; background: #fff; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #23325b; }
-        .camera-icon .material-symbols-outlined { font-size: 32px; }
-        .camera-text-main { font-size: 1.1rem; font-weight: 700; color: #16213e; margin-bottom: .2rem; }
-        .camera-text-sub { font-size: .85rem; color: #6b7280; }
-        .img-preview { width: 100%; height: 300px; object-fit: cover; display: none; }
-        .btn-change-photo { position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,.7); color: #fff; border-radius: 10px; padding: .5rem 1rem; font-size: .8rem; font-weight: 700; display: none; backdrop-filter: blur(4px); }
-        input[type="file"]#foto { display: none; }
+        .camera-box:hover { border-color: #cca75b; background: #fdf8ee; }
+        .camera-preview { width: 100%; max-height: 300px; object-fit: contain; display: none; border-radius: 8px; }
 
-        /* ── FOOTER ── */
-        .form-footer { background: #f8fafc; padding: 1.5rem 2rem; display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #f1f5f9; }
-        .btn-submit { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #cca75b, #a07a2a); color: #16213e; border: none; padding: .8rem 2rem; border-radius: 12px; font-size: .95rem; font-weight: 800; font-family: 'Outfit', sans-serif; cursor: pointer; box-shadow: 0 4px 15px rgba(204,167,91,.4); transition: transform .15s, box-shadow .15s; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204,167,91,.5); }
-        .field-error { font-size: .8rem; color: #b91c1c; margin-top: .5rem; font-weight: 500; background: #fee2e2; padding: .5rem 1rem; border-radius: 8px; border-left: 3px solid #ef4444; }
+        /* SIGNATURE */
+        .sig-canvas-wrap { border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff; position: relative; margin-bottom: 0.5rem; }
+        canvas#signature-pad { width: 100%; height: 150px; cursor: crosshair; }
+        .btn-clear-sig { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: #9ca3af; cursor: pointer; }
+
+        /* FOOTER SIGNATURES */
+        .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem; }
+        .sig-box { text-align: center; }
+        .sig-line { border-bottom: 1.5px solid #16213e; min-height: 80px; margin-bottom: .5rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        .sig-text { font-size: .85rem; font-weight: 700; color: #4b5563; }
+        .sig-sub { font-size: .75rem; color: #9ca3af; }
+
+        /* ACTION BUTTON */
+        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 2px dashed #e5e7eb; padding-top: 2rem; }
+        .btn-submit {
+            background: linear-gradient(135deg, #cca75b, #a07a2a); color: #16213e; border: none;
+            padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: .5rem; transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 4px 15px rgba(204,167,91,.3);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204,167,91,.4); }
+
+        @media(max-width: 768px) {
+            .paper-sheet { padding: 2rem 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .signatures { grid-template-columns: 1fr; gap: 2rem; }
+        }
     </style>
 
-    <div class="checklist-root">
-        <div class="form-wrap">
-            
-            @if(session('error'))
-                <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-red-500">error</span>
-                        <p class="text-sm font-bold text-red-800">{{ session('error') }}</p>
-                    </div>
-                </div>
-            @endif
-
-            <form action="{{ route('prestamos.procesar-devolucion', $prestamo) }}" method="POST" enctype="multipart/form-data" class="form-card" id="returnForm">
+    <div class="sheet-root">
+        <div class="sheet-wrap">
+            <form action="{{ route('prestamos.procesar-devolucion', $prestamo) }}" method="POST" enctype="multipart/form-data" id="devolucion-form">
                 @csrf
-
-                <div class="tool-header">
-                    <div class="tool-img"><img src="{{ $prestamo->herramienta->imagen_url }}" alt="Herramienta"></div>
-                    <div class="tool-info">
-                        <div class="tool-badge"><span class="material-symbols-outlined">warning</span> Alto Valor</div>
-                        <h1 class="tool-title">{{ $prestamo->herramienta->nombre }}</h1>
-                        <div class="tool-user">
-                            <span class="material-symbols-outlined">person</span>
-                            Estudiante: <strong class="text-white ml-1">{{ $prestamo->usuario->nombre }}</strong>
+                <div class="paper-sheet">
+                    
+                    <div class="sheet-header">
+                        <div class="sheet-title-area">
+                            <h1>Formato de Entrega / Devolución<br><span style="color:#cca75b; font-size:1rem;">Taller de Mecánica Automotriz</span></h1>
+                        </div>
+                        <div class="sheet-logo-area">
+                            <img src="https://ui-avatars.com/api/?name=IST+PET&color=cca75b&background=ffffff&font-size=0.4" alt="Logo" style="height:50px; opacity:0.8;">
                         </div>
                     </div>
-                </div>
 
-                @if(count($prestamo->herramienta->accesorios_formateados) > 0)
-                <div class="form-section">
-                    <h3 class="section-title"><span class="material-symbols-outlined">fact_check</span> Validación de Accesorios</h3>
-                    <p class="section-desc">Confirma físicamente que los siguientes elementos han sido devueltos.</p>
-                    
-                    <div class="check-list">
-                        @foreach($prestamo->herramienta->accesorios_formateados as $index => $accesorio)
-                            @if($accesorio['estado'] != 'perdido')
-                                <label class="check-item group">
-                                    <input type="checkbox" name="accesorios_recibidos[]" value="{{ $index }}" class="check-input text-[#a07a2a] focus:ring-[#cca75b]">
-                                    <div class="flex flex-col">
-                                        <span class="check-label">{{ $accesorio['nombre'] }}</span>
-                                        <span class="text-[9px] text-gray-400 group-hover:text-corporate-blue transition-colors italic">Estado previo: {{ $accesorio['estado'] }}</span>
+                    @if ($errors->any())
+                        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
+                            <strong style="display: block; margin-bottom: 0.5rem;">⚠️ Hay errores que requieren tu atención:</strong>
+                            <ul style="list-style-type: disc; margin-left: 1.5rem; font-size: 0.9rem;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div id="js-error-box" style="display:none; background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
+                        <strong style="display: block; margin-bottom: 0.5rem;">⚠️ ATENCIÓN:</strong>
+                        <ul id="js-error-list" style="list-style-type: disc; margin-left: 1.5rem; font-size: 0.9rem;"></ul>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <span class="input-label">Docente:</span>
+                            <input type="text" class="input-line" value="{{ $prestamo->peticion->docente ?? 'N/A' }}" disabled>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Asignatura:</span>
+                            <input type="text" class="input-line" value="{{ $prestamo->peticion->asignatura ?? 'N/A' }}" disabled>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Estudiante:</span>
+                            <input type="text" class="input-line" value="{{ $prestamo->usuario->nombre }}" disabled>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Fecha:</span>
+                            <input type="text" class="input-line" value="{{ now()->format('d / m / Y') }}" disabled>
+                        </div>
+                        
+                        {{-- HORA DE SALIDA Y DEVOLUCION --}}
+                        <div class="input-group">
+                            <span class="input-label">Hora de Salida:</span>
+                            <input type="text" class="input-line font-bold" style="color:#1d4ed8;" value="{{ $prestamo->peticion ? $prestamo->peticion->updated_at->format('H:i') : $prestamo->created_at->format('H:i') }}" disabled>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Hora de Devolución:</span>
+                            <input type="text" class="input-line font-bold" style="color:#b91c1c;" value="{{ now()->format('H:i') }}" disabled>
+                        </div>
+
+                        <div class="input-group" style="grid-column: 1 / -1;">
+                            <span class="input-label">Práctica:</span>
+                            <input type="text" class="input-line" value="{{ $prestamo->peticion->practica ?? 'N/A' }}" disabled>
+                        </div>
+                    </div>
+
+                    <div class="section-header">Listado de Herramientas y Accesorios</div>
+                    <div class="tools-table-wrapper">
+                        <table class="tools-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%;">Nº</th>
+                                    <th style="text-align:left;">Descripción de Herramienta</th>
+                                    <th style="width:10%;">Cant.</th>
+                                    <th style="width:40%;">
+                                        <div class="flex items-center justify-between">
+                                            <span>Check-list Accesorios (Recepción)</span>
+                                            <button type="button" onclick="marcarTodosChecks()" style="background-color: #cca75b; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; border: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">MARCAR TODOS</button>
+                                        </div>
+                                    </th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align:center; font-weight:700;">1</td>
+                                    <td>
+                                        <div class="font-bold text-[#16213e]">{{ $prestamo->herramienta->nombre }}</div>
+                                        <div class="text-[10px] text-gray-400">ID: {{ $prestamo->herramienta->codigo_qr }}</div>
+                                    </td>
+                                    <td style="text-align:center;">1</td>
+                                    <td>
+                                        @if(count($prestamo->herramienta->accesorios_formateados) > 0)
+                                            <div class="flex flex-col gap-2">
+                                                @foreach($prestamo->herramienta->accesorios_formateados as $index => $acc)
+                                                    @if($acc['estado'] !== 'perdido')
+                                                        <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input type="checkbox" name="accesorios_recibidos[]" value="{{ $index }}" class="chk-integridad rounded text-[#cca75b] focus:ring-[#cca75b]">
+                                                            <span class="text-xs font-medium">{{ $acc['nombre'] }}</span>
+                                                        </label>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-xs italic text-gray-400">Sin accesorios registrados</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            @if($prestamo->peticion && $prestamo->peticion->foto_entrega)
+                                <div class="section-header">Foto de Entrega (Referencia)</div>
+                                <div class="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                                    <img src="{{ asset('storage/' . $prestamo->peticion->foto_entrega) }}" alt="Foto entrega" class="w-full h-48 object-cover cursor-zoom-in" onclick="window.open(this.src)">
+                                    <div class="bg-gray-50 p-2 text-[10px] text-gray-500 text-center">Estado registrado al inicio del préstamo</div>
+                                </div>
+                            @endif
+
+                            <div class="section-header">Evidencia Fotográfica (Devolución)</div>
+                            <label class="camera-box" id="camera-box">
+                                <div id="camera-prompt">
+                                    <span class="material-symbols-outlined" style="font-size:3rem; color:#d1d5db;">add_a_photo</span>
+                                    <p class="font-bold text-sm text-gray-600">Capturar Estado de Entrega</p>
+                                    <p class="text-xs text-gray-400">Toca para abrir cámara</p>
+                                </div>
+                                <img id="image-preview" class="camera-preview">
+                                <input type="file" name="foto_devolucion" id="foto_input" accept="image/*" capture="environment" class="hidden">
+                            </label>
+                            
+                            <div class="section-header">Observaciones de Recepción</div>
+                            <textarea name="observaciones" class="w-full border-1.5 border-gray-200 rounded-lg p-3 text-sm focus:border-[#cca75b] focus:ring-0" rows="3" placeholder="Indique si hay daños, piezas faltantes o novedades..."></textarea>
+                        </div>
+
+                        <div>
+                            <div class="section-header">Estado Final del Equipo</div>
+                            <div class="flex flex-col gap-2 mb-6">
+                                <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-green-50 transition-colors has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                                    <input type="radio" name="estado_final" value="disponible" checked class="text-green-600 focus:ring-green-500">
+                                    <div>
+                                        <div class="font-bold text-sm">Disponible</div>
+                                        <div class="text-[10px] text-gray-500">Operativo y completo</div>
                                     </div>
                                 </label>
-                            @endif
-                        @endforeach
-                    </div>
-                    @error('accesorios')<div class="field-error">{{ $message }}</div>@enderror
-                </div>
-                @endif
-
-                <div class="form-section">
-                    <h3 class="section-title"><span class="material-symbols-outlined">photo_camera</span> Foto de Estado</h3>
-                    <p class="section-desc">Toma una fotografía evidenciando que la herramienta y todos sus componentes ingresan en buen estado.</p>
-                    
-                    <label class="camera-area" id="cameraArea">
-                        <div class="camera-ui" id="cameraUI">
-                            <div class="camera-icon"><span class="material-symbols-outlined">add_a_photo</span></div>
-                            <div class="camera-text-main">Tomar o subir foto</div>
-                            <div class="camera-text-sub">Toca aquí para abrir la cámara</div>
+                                <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-red-50 transition-colors has-[:checked]:border-red-500 has-[:checked]:bg-red-50">
+                                    <input type="radio" name="estado_final" value="mantenimiento" class="text-red-600 focus:ring-red-500">
+                                    <div>
+                                        <div class="font-bold text-sm">Mantenimiento</div>
+                                        <div class="text-[10px] text-gray-500">Requiere reparación o revisión</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors has-[:checked]:border-gray-800 has-[:checked]:bg-gray-50">
+                                    <input type="radio" name="estado_final" value="perdido" class="text-gray-800 focus:ring-gray-800">
+                                    <div>
+                                        <div class="font-bold text-sm">Perdido / Dado de Baja</div>
+                                        <div class="text-[10px] text-gray-500">No recuperado</div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        <img src="" alt="Preview" class="img-preview" id="photoPreview">
-                        <div class="btn-change-photo" id="btnChangePhoto"><span class="material-symbols-outlined text-sm inline-block align-middle mr-1">sync</span> Cambiar Foto</div>
-                        <!-- capture="environment" abre la cámara trasera en dispositivos móviles -->
-                        <input type="file" id="foto" name="foto_devolucion" accept="image/*" capture="environment">
-                    </label>
-                    @error('foto_devolucion')<div class="field-error">{{ $message }}</div>@enderror
-                </div>
-
-                <div class="form-section">
-                    <h3 class="section-title"><span class="material-symbols-outlined">report_problem</span> Reporte de Novedades (Incidencias)</h3>
-                    <p class="section-desc">¿Ocurrió algún inconveniente? Si falta un accesorio, la herramienta está dañada o se perdió algo, descríbelo aquí.</p>
-                    
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <textarea name="observaciones" rows="3" 
-                            class="w-full border-gray-300 focus:border-[#cca75b] focus:ring-[#cca75b] rounded-lg text-sm shadow-sm"
-                            placeholder="Ej: Se extravió el accesorio de ajuste..." id="observaciones"></textarea>
-                        <p class="text-[11px] text-gray-500 mt-2 italic flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">info</span>
-                            Nota: Si no marcas todos los accesorios arriba, debes escribir aquí la razón.
-                        </p>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <h3 class="section-title"><span class="material-symbols-outlined">settings_backup_restore</span> Estado Final de la Herramienta</h3>
-                    <p class="section-desc">Define el estado en el que ingresará la herramienta al inventario tras esta recepción.</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-green-50/50 transition-colors group has-[:checked]:border-green-500 has-[:checked]:bg-green-50/50">
-                            <input type="radio" name="estado_final" value="disponible" class="hidden" checked>
-                            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined">check_circle</span>
+                                  <div class="signatures-new" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; border-top: 1.5px solid #16213e; padding-top: 2rem;">
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Entregado por (Estudiante responsable):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span style="font-weight: 800; color: #cca75b; font-style: italic;">{{ $prestamo->usuario->nombre }}</span>
                             </div>
-                            <div>
-                                <div class="font-bold text-gray-900 text-sm">Disponible</div>
-                                <div class="text-[10px] text-gray-500">Listo para uso</div>
-                            </div>
-                        </label>
+                        </div>
 
-                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-red-50/50 transition-colors group has-[:checked]:border-red-500 has-[:checked]:bg-red-50/50">
-                            <input type="radio" name="estado_final" value="mantenimiento" class="hidden">
-                            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined">build_circle</span>
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Recibido por (Encargado de taller):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()->nombre ?? 'Javier Tulcán' }}</span>
                             </div>
-                            <div>
-                                <div class="font-bold text-gray-900 text-sm">Mantenimiento</div>
-                                <div class="text-[10px] text-gray-500">Requiere revisión</div>
-                            </div>
-                        </label>
+                        </div>
 
-                        <label class="relative flex items-center gap-3 p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50/50 transition-colors group has-[:checked]:border-gray-500 has-[:checked]:bg-gray-50/50">
-                            <input type="radio" name="estado_final" value="perdido" class="hidden">
-                            <div class="w-10 h-10 rounded-xl bg-gray-200 text-gray-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined">search_off</span>
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Autorizado por (Docente responsable):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span style="font-weight: 800; color: #1e40af; font-style: italic;">{{ $prestamo->peticion->docente ?? 'N/A' }}</span>
                             </div>
-                            <div>
-                                <div class="font-bold text-gray-900 text-sm">Perdido</div>
-                                <div class="text-[10px] text-gray-500">Dado de baja</div>
-                            </div>
-                        </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-footer">
-                    <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Cancelar</a>
-                    <button type="submit" class="btn-submit" id="submitBtn">
-                        <span class="material-symbols-outlined">task_alt</span>
-                        Enviar Reporte de Devolución
-                    </button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit" id="submit-btn">
+                            <span class="material-symbols-outlined">task_alt</span>
+                            Finalizar y Entregar Herramientas
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Photo preview logic
-        const fileInput = document.getElementById('foto');
-        const cameraArea = document.getElementById('cameraArea');
-        const cameraUI = document.getElementById('cameraUI');
-        const preview = document.getElementById('photoPreview');
-        const btnChange = document.getElementById('btnChangePhoto');
-        const obsInput = document.getElementById('observaciones');
+        function marcarTodosChecks() {
+            document.querySelectorAll('.chk-integridad').forEach(cb => cb.checked = true);
+        }
 
-        fileInput.addEventListener('change', function(e) {
+        // Photo Preview
+        document.getElementById('foto_input').addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    cameraUI.style.display = 'none';
-                    btnChange.style.display = 'block';
-                    cameraArea.classList.add('has-image');
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview').style.display = 'block';
+                    document.getElementById('camera-prompt').style.display = 'none';
                 }
                 reader.readAsDataURL(this.files[0]);
             }
         });
 
-        // Validation before submit
-        const form = document.getElementById('returnForm');
-        form.addEventListener('submit', function(e) {
-            // Check checkboxes
-            const checkboxes = document.querySelectorAll('.check-input');
-            let allChecked = true;
-            if (checkboxes.length > 0) {
-                checkboxes.forEach(cb => { if(!cb.checked) allChecked = false; });
+        document.getElementById('devolucion-form').addEventListener('submit', function(e) {
+            const fotoInput = document.getElementById('foto_input');
+            const accesorios = document.querySelectorAll('input[name="accesorios_recibidos[]"]');
+            const cameraBox = document.getElementById('camera-box');
+            let valid = true;
+            let errors = [];
+
+            // Validar Foto
+            if (!fotoInput.files || !fotoInput.files[0]) {
+                valid = false;
+                errors.push("Debe capturar una foto de evidencia del estado de la herramienta.");
+                cameraBox.style.borderColor = "#ef4444";
+                cameraBox.style.backgroundColor = "#fef2f2";
             }
 
-            // Si no está todo marcado, las observaciones son obligatorias
-            if (!allChecked && obsInput.value.trim().length < 5) {
+            const observaciones = document.querySelector('textarea[name="observaciones"]').value.trim();
+
+            // Validar Accesorios (si existen)
+            if (accesorios.length > 0) {
+                let checkedCount = 0;
+                accesorios.forEach(acc => { if(acc.checked) checkedCount++; });
+                
+                if (checkedCount === 0 && observaciones === '') {
+                    valid = false;
+                    errors.push("Debe revisar y marcar el check-list de accesorios. Si realmente no se entrega ningún accesorio, es obligatorio explicar el motivo en las Observaciones.");
+                }
+            }
+
+            if (!valid) {
                 e.preventDefault();
-                alert('⚠️ Faltan accesorios por marcar. Debes explicar la novedad en el campo de observaciones (min 5 caracteres).');
-                obsInput.focus();
-                return;
+                const errorBox = document.getElementById('js-error-box');
+                const errorList = document.getElementById('js-error-list');
+                errorList.innerHTML = '';
+                errors.forEach(err => {
+                    let li = document.createElement('li');
+                    li.innerText = err;
+                    errorList.appendChild(li);
+                });
+                errorBox.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return false;
+            } else {
+                document.getElementById('js-error-box').style.display = 'none';
             }
 
-            // Check photo
-            if (!fileInput.files || fileInput.files.length === 0) {
-                e.preventDefault();
-                alert('📸 La fotografía de evidencia es obligatoria.');
-                return;
-            }
-
-            // Visual feedback
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Procesando...';
-            btn.style.opacity = '0.7';
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Procesando Entrega...';
+            btn.style.opacity = '0.8';
             btn.style.pointerEvents = 'none';
         });
     </script>

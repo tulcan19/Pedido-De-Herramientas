@@ -25,6 +25,7 @@ class Usuario extends Authenticatable
     protected $fillable = [
         'nombre',
         'cedula',
+        'email',
         'password',
         'rol',
         'asignatura',
@@ -33,7 +34,7 @@ class Usuario extends Authenticatable
     ];
 
     /**
-     * Comprobar si el usuario es administrador.
+     * Comprobar si el usuario es coordinador.
      */
     public function esAdmin(): bool
     {

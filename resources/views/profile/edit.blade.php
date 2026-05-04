@@ -251,21 +251,7 @@
                 </div>
             </div>
 
-            {{-- Zona Peligrosa --}}
-            <div class="prof-card" style="border-color: #fecaca;">
-                <div class="prof-card-header" style="border-color: #fef2f2;">
-                    <div class="prof-card-icon danger">
-                        <span class="material-symbols-outlined">delete_forever</span>
-                    </div>
-                    <div>
-                        <h3 style="color: #b91c1c;">Zona Peligrosa</h3>
-                        <p>Una vez eliminada, tu cuenta no podrá recuperarse.</p>
-                    </div>
-                </div>
-                <div class="prof-card-body">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
+
 
         </div>
     </div>

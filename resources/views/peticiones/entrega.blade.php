@@ -105,8 +105,12 @@
                                 <tr>
                                     <th style="width:10%">ID QR</th>
                                     <th style="text-align:left">Herramienta / Equipamiento</th>
-                                    <th>Checks de Integridad</th>
-                                </tr>
+                                    <th>
+                                        <div class="flex items-center justify-between">
+                                            <span>Checks de Integridad</span>
+                                            <button type="button" onclick="marcarTodosChecks()" style="background-color: #cca75b; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; border: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">MARCAR TODOS</button>
+                                        </div>
+                                    </th>
                             </thead>
                             <tbody>
                                 @foreach($peticion->prestamos as $prestamo)
@@ -122,7 +126,7 @@
                                                 @foreach($prestamo->herramienta->accesorios_formateados as $acc)
                                                     @if($acc['estado'] !== 'disponible') @continue @endif
                                                     <label class="flex items-center gap-2 text-[10px] bg-gray-50 p-1 rounded border border-gray-100">
-                                                        <input type="checkbox" required class="rounded text-[#cca75b] focus:ring-[#cca75b] w-3 h-3">
+                                                        <input type="checkbox" required class="chk-integridad rounded text-[#cca75b] focus:ring-[#cca75b] w-3 h-3">
                                                         <span>{{ $acc['nombre'] }} ok</span>
                                                     </label>
                                                 @endforeach
@@ -156,12 +160,16 @@
 
                     <div class="signatures">
                         <div class="sig-box">
-                            <div class="sig-line"></div>
+                            <div class="sig-line" style="display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;">
+                                <span style="font-weight: 800; color: #cca75b; font-style: italic; font-size: 1.1rem;">{{ Auth::user()->nombre }}</span>
+                            </div>
                             <div class="sig-text">{{ Auth::user()->nombre }}</div>
-                            <div style="font-size:.7rem; color:#9ca3af;">Encargado de Taller (Salida)</div>
+                            <div style="font-size:.7rem; color:#9ca3af;">Coordinador de Taller (Salida)</div>
                         </div>
                         <div class="sig-box">
-                            <div class="sig-line"></div>
+                            <div class="sig-line" style="display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;">
+                                <span style="font-weight: 800; color: #16213e; font-style: italic; font-size: 1.1rem;">{{ $peticion->usuario->nombre }}</span>
+                            </div>
                             <div class="sig-text">{{ $peticion->usuario->nombre }}</div>
                             <div style="font-size:.7rem; color:#9ca3af;">Estudiante Solicitante (Recibí)</div>
                         </div>
@@ -180,6 +188,10 @@
     </div>
 
     <script>
+        function marcarTodosChecks() {
+            document.querySelectorAll('.chk-integridad').forEach(cb => cb.checked = true);
+        }
+
         const fileInput = document.getElementById('foto_entrega');
         const preview = document.getElementById('preview');
         const prompt = document.getElementById('cameraPrompt');

@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'cedula' => ['required', 'string', 'unique:'.Usuario::class, new CedulaEcuador],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.Usuario::class],
             'semestre' => ['required', 'integer', 'min:1', 'max:6'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -41,6 +42,7 @@ class RegisteredUserController extends Controller
         $usuario = Usuario::create([
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
+            'email' => $request->email,
             'semestre' => $request->semestre,
             'password' => Hash::make($request->password),
             'rol' => 'estudiante',

@@ -106,23 +106,34 @@
                         </div>
                         <div class="input-group">
                             <span class="input-label">Asignatura:</span>
-                            <input type="text" name="asignatura" id="asignatura" class="input-line bg-gray-50 cursor-not-allowed" placeholder="Ej. Sistemas de Inyección" value="{{ old('asignatura') }}" readonly required>
+                            <select name="asignatura" id="asignatura" class="input-line" required>
+                                <option value="" disabled selected>Seleccione docente primero</option>
+                            </select>
                         </div>
                         <div class="input-group">
                             <span class="input-label">Fecha:</span>
                             <input type="text" class="input-line" value="{{ now()->format('d / m / Y') }}" disabled>
                         </div>
                         <div class="input-group">
-                            <span class="input-label">Semestre / Paralelo:</span>
-                            <input type="text" class="input-line" value="{{ Auth::user()->semestre ?? 'N/A' }}" disabled>
+                            <span class="input-label">Semestre de la Asignatura:</span>
+                            <select name="semestre_materia" class="input-line" required>
+                                <option value="" disabled selected>Seleccione el semestre</option>
+                                <option value="1">1° Semestre</option>
+                                <option value="2">2° Semestre</option>
+                                <option value="3">3° Semestre</option>
+                                <option value="4">4° Semestre</option>
+                                <option value="5">5° Semestre</option>
+                                <option value="6">6° Semestre</option>
+                            </select>
                         </div>
                         <div class="input-group">
-                            <span class="input-label">Tiempo de uso:</span>
-                            <div class="flex items-end gap-2" style="flex:1;">
-                                <input type="number" name="horas" class="input-line text-center" style="width:60px;" placeholder="H" min="0" max="24" value="{{ old('horas', 1) }}" required>
-                                <span class="text-xs text-gray-400 pb-1">hrs</span>
-                                <input type="number" name="minutos" class="input-line text-center" style="width:60px;" placeholder="M" min="0" max="59" value="{{ old('minutos', 0) }}" required>
-                                <span class="text-xs text-gray-400 pb-1">min</span>
+                            <span class="input-label">Hora de ingreso:</span>
+                            <div class="flex items-end gap-1" style="flex:1;">
+                                <input type="text" id="hora_ingreso_display" class="input-line bg-gray-100 font-bold text-center cursor-not-allowed" style="width:100px; color:#23325b;" value="{{ now()->format('H:i') }}" readonly>
+                                <input type="hidden" name="horas" id="hidden_horas" value="{{ now()->format('H') }}">
+                                <input type="hidden" name="minutos" id="hidden_minutos" value="{{ now()->format('i') }}">
+                                <span class="text-[10px] text-green-600 font-bold uppercase tracking-tighter flex items-center gap-1 ml-2 mb-1">
+                                </span>
                             </div>
                         </div>
                         <div class="input-group" style="grid-column: 1 / -1;">
@@ -180,23 +191,33 @@
 
                     <div class="obs-area">
                         <label class="obs-label">Observaciones:</label>
-                        <textarea name="observaciones" class="obs-input" placeholder="Agrega cualquier comentario relevante sobre el estado de la entrega o requerimientos especiales.">{{ old('observaciones') }}</textarea>
+                        <div style="position: relative;">
+                            <div style="position: absolute; top: 30px; left: 0; right: 0; border-bottom: 1px solid #cbd5e1; pointer-events: none;"></div>
+                            <div style="position: absolute; top: 60px; left: 0; right: 0; border-bottom: 1px solid #cbd5e1; pointer-events: none;"></div>
+                            <textarea name="observaciones" class="obs-input" style="background: transparent; line-height: 30px; border: none; width: 100%; min-height: 90px; padding: 0; position: relative; z-index: 10;" placeholder="Agregue novedades o requerimientos especiales aquí...">{{ old('observaciones') }}</textarea>
+                        </div>
                     </div>
 
-                    <div class="signatures">
-                        <div class="sig-box">
-                            <div class="sig-line" style="display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
-                                <span id="teacher-sig-name" style="font-family: 'Outfit', sans-serif; font-size:1.1rem; font-weight:700; color:#16213e; font-style:italic;"></span>
+                    <div class="signatures-new" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Entregado por (Encargado de taller):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()->nombre ?? 'Javier Tulcán' }}</span>
                             </div>
-                            <div class="sig-text">Entregado por (Encargado de taller)</div>
-                            <div class="sig-sub">Firma digital - Aprobación en sistema</div>
                         </div>
-                        <div class="sig-box">
-                            <div class="sig-line" style="display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
-                                <span style="font-family: 'Outfit', sans-serif; font-size:1.5rem; font-weight:800; color:#cca75b; font-style:italic;">{{ Auth::user()->nombre }}</span>
+
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Recibido por (Estudiante responsable):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span style="font-weight: 800; color: #cca75b; font-style: italic;">{{ Auth::user()->nombre }}</span>
                             </div>
-                            <div class="sig-text">Recibido por (Estudiante Solicitante)</div>
-                            <div class="sig-sub">Validado con credenciales de usuario</div>
+                        </div>
+
+                        <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
+                            <span style="font-weight: 700;">Autorizado por (Docente responsable):</span>
+                            <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
+                                <span id="teacher-sig-name" style="font-weight: 800; color: #1e40af; font-style: italic;"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -227,14 +248,40 @@
         function updateTeacherSignature(select) {
             const option = select.options[select.selectedIndex];
             const name = option.text;
-            const asignatura = option.getAttribute('data-asignatura');
+            const asignaturasRaw = option.getAttribute('data-asignatura') || "";
+            const asignaturas = asignaturasRaw.split(',').map(s => s.trim()).filter(s => s !== "");
 
             document.getElementById('teacher-sig-name').innerText = name;
             
-            if (asignatura) {
-                document.getElementById('asignatura').value = asignatura;
+            const asignaturaSelect = document.getElementById('asignatura');
+            asignaturaSelect.innerHTML = '<option value="" disabled selected>Seleccione la asignatura</option>';
+            
+            asignaturas.forEach(asig => {
+                const opt = document.createElement('option');
+                opt.value = asig;
+                opt.text = asig;
+                asignaturaSelect.appendChild(opt);
+            });
+
+            // Si solo hay una, seleccionarla automáticamente
+            if (asignaturas.length === 1) {
+                asignaturaSelect.selectedIndex = 1;
             }
         }
+
+        // Reloj en tiempo real para Hora de Ingreso
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const display = document.getElementById('hora_ingreso_display');
+            if (display) {
+                display.value = `${h}:${m}`;
+                document.getElementById('hidden_horas').value = h;
+                document.getElementById('hidden_minutos').value = m;
+            }
+        }
+        setInterval(updateClock, 10000); // Actualizar cada 10 segundos
 
         document.getElementById('peticion-form').addEventListener('submit', function() {
             let btn = document.getElementById('btn-submit');

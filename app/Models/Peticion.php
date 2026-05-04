@@ -18,6 +18,7 @@ class Peticion extends Model
         'observaciones',
         'foto_entrega',
         'estado',
+        'docente_aprueba',
     ];
 
     public function usuario()

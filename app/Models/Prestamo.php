@@ -18,8 +18,11 @@ class Prestamo extends Model
         'fecha_devolucion_real',
         'estado',
         'foto_devolucion',
+        'firma_devolucion',
         'checklist_accesorios',
         'observaciones',
+        'auditoria_estado',
+        'auditoria_notas',
     ];
 
     protected $casts = [

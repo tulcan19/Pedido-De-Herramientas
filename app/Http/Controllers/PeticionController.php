@@ -79,17 +79,19 @@ class PeticionController extends Controller
         $request->validate([
             'docente_id' => 'required|exists:usuarios,id',
             'asignatura' => 'required|string|max:255',
+            'semestre_materia' => 'required|integer|min:1|max:6',
             'practica' => 'required|string|max:255',
             'horas' => 'required|integer|min:0|max:24',
             'minutos' => 'required|integer|min:0|max:59',
             'observaciones' => 'nullable|string',
         ]);
 
-        $totalMinutos = ($request->horas * 60) + $request->minutos;
+        $totalMinutos = 525600; // Un año de duración (efectivamente sin límite de tiempo)
         
-        if ($totalMinutos <= 0) {
-            return back()->with('error', 'El tiempo de uso debe ser mayor a 0 minutos.');
-        }
+        $hora_ingreso = sprintf('%02d:%02d', $request->horas, $request->minutos);
+        // Podemos guardar la hora de ingreso en las observaciones o en un campo nuevo si existiera.
+        // Por ahora lo incluiremos en las observaciones automáticamente.
+        $observaciones = "Hora de ingreso: {$hora_ingreso}. " . $request->observaciones;
 
         $herramientas = Herramienta::whereIn('id', $cart)->get();
 
@@ -99,32 +101,35 @@ class PeticionController extends Controller
             }
         }
 
-        $peticion = Peticion::create([
-            'usuario_id' => Auth::id(),
-            'docente_id' => $request->docente_id,
-            'docente' => Usuario::find($request->docente_id)->nombre, // Guardar el nombre por redundancia/conveniencia
-            'asignatura' => $request->asignatura,
-            'practica' => $request->practica,
-            'minutos_estimados' => $totalMinutos,
-            'observaciones' => $request->observaciones,
-            'estado' => 'enviado' // Significa reservado y esperando recojo en ventanilla
-        ]);
-
-        foreach($herramientas as $herramienta) {
-            Prestamo::create([
-                'peticion_id' => $peticion->id,
+        \Illuminate\Support\Facades\DB::transaction(function() use ($request, $herramientas, $totalMinutos, $observaciones) {
+            $peticion = Peticion::create([
                 'usuario_id' => Auth::id(),
-                'herramienta_id' => $herramienta->id,
-                'fecha_reserva' => Carbon::now(),
-                'fecha_devolucion_esperada' => Carbon::now()->addMinutes($totalMinutos),
-                'estado' => 'reservado',
+                'docente_id' => $request->docente_id,
+                'docente' => Usuario::find($request->docente_id)->nombre, // Guardar el nombre por redundancia/conveniencia
+                'asignatura' => $request->asignatura . ' (' . $request->semestre_materia . '° Semestre)',
+                'practica' => $request->practica,
+                'minutos_estimados' => $totalMinutos,
+                'observaciones' => $observaciones,
+                'estado' => 'enviado', // Esperando aprobación del docente
+                'docente_aprueba' => false
             ]);
-            $herramienta->update(['estado' => 'prestado']);
-        }
+
+            foreach($herramientas as $herramienta) {
+                Prestamo::create([
+                    'peticion_id' => $peticion->id,
+                    'usuario_id' => Auth::id(),
+                    'herramienta_id' => $herramienta->id,
+                    'fecha_reserva' => Carbon::now(),
+                    'fecha_devolucion_esperada' => Carbon::now()->addMinutes($totalMinutos),
+                    'estado' => 'reservado',
+                ]);
+                $herramienta->update(['estado' => 'prestado']);
+            }
+        });
 
         session()->forget('carrito_peticion');
 
-        return redirect()->route('dashboard')->with('success', 'Has enviado tu Formato de Petición exitosamente.');
+        return redirect()->route('dashboard')->with('success', 'Has enviado tu petición. Está a la espera de autorización por tu docente.');
     }
 
     public function entrega(Peticion $peticion)
@@ -133,8 +138,27 @@ class PeticionController extends Controller
             return redirect()->route('dashboard')->with('error', 'Esta petición no está pendiente de entrega.');
         }
         
+        if (!$peticion->docente_aprueba) {
+            return redirect()->route('dashboard')->with('error', 'Esta petición aún no ha sido autorizada por el docente.');
+        }
+        
         $peticion->load(['prestamos.herramienta', 'usuario']);
         return view('peticiones.entrega', compact('peticion'));
+    }
+
+    public function aprobarDocente(Peticion $peticion)
+    {
+        if (Auth::user()->rol !== 'docente' && Auth::user()->rol !== 'admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        if ($peticion->estado !== 'enviado') {
+            return back()->with('error', 'La petición no está pendiente.');
+        }
+
+        $peticion->update(['docente_aprueba' => true]);
+
+        return back()->with('success', 'Has autorizado la petición. El estudiante ahora puede retirar las herramientas en ventanilla.');
     }
 
     public function procesarEntrega(Request $request, Peticion $peticion)

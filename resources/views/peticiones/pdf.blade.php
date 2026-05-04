@@ -151,7 +151,7 @@
             </div>
             <div class="sig-box">
                 <div class="sig-name">Javier Tulcán</div>
-                <div class="sig-line">ENCARGADO DE TALLER</div>
+                <div class="sig-line">COORDINADOR DE TALLER</div>
             </div>
             <div class="clear"></div>
         </div>

@@ -47,7 +47,7 @@
         </div>
         <div class="prof-hint">
             <span class="material-symbols-outlined">info</span>
-            El semestre es gestionado por tu administrador.
+            El semestre es gestionado por tu coordinador.
         </div>
     </div>
     @endif

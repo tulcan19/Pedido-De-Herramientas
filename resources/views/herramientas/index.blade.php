@@ -67,7 +67,7 @@
         /* ── SEARCH BAR ── */
         .search-bar-wrap {
             max-width: 1200px; margin: -3rem auto 0; padding: 0 1.5rem;
-            position: relative; z-index: 20;
+            position: sticky; top: 1rem; z-index: 50;
         }
         .search-card {
             background: #fff; border-radius: 18px; padding: 1.25rem 1.5rem;
@@ -204,7 +204,7 @@
                     <span class="material-symbols-outlined" style="font-size:13px;">
                         {{ Auth::user()->esAdmin() ? 'admin_panel_settings' : 'storefront' }}
                     </span>
-                    {{ Auth::user()->esAdmin() ? 'Panel Administrativo' : 'Catálogo de Herramientas' }}
+                    {{ Auth::user()->esAdmin() ? 'Panel de Coordinación' : 'Catálogo de Herramientas' }}
                 </div>
                 <h1 class="tool-hero-title">
                     {{ Auth::user()->esAdmin() ? 'Gestión de' : 'Nuestras' }}
@@ -438,9 +438,9 @@
         <div style="display:flex; align-items:center; gap: 8px;">
             <span class="material-symbols-outlined text-[#cca75b]">assignment</span>
             <span id="cart-count" class="font-bold text-lg">{{ Session::has('carrito_peticion') ? count(Session::get('carrito_peticion')) : 0 }}</span>
-            <span class="text-xs text-gray-300">en la reserva</span>
+            <span class="text-xs text-gray-300">En la reserva</span>
         </div>
-        <a href="{{ route('peticiones.create') }}" class="px-5 py-2 bg-[#cca75b] text-[#16213e] font-bold text-sm rounded-full hover:bg-yellow-500 transition-colors shadow-md">
+        <a href="{{ route('peticiones.create') }}" class="px-6 py-2 bg-[#cca75b] text-white font-black text-sm rounded-full hover:bg-[#a07a2a] transition-all shadow-lg transform hover:scale-105 active:scale-95">
             Llenar Formulario →
         </a>
     </div>

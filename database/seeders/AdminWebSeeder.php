@@ -16,7 +16,7 @@ class AdminWebSeeder extends Seeder
         Usuario::updateOrCreate(
             ['cedula' => 'admin'],
             [
-                'nombre' => 'Administrador Web',
+                'nombre' => 'Coordinador del Taller',
                 'password' => 'admin1719', // El modelo Usuario probablemente tiene un mutador o maneja el Hash, si no, usar Hash::make
                 'rol' => 'admin',
             ]

@@ -32,20 +32,20 @@ class PrestamoController extends Controller
             'usuario_id' => Auth::id(),
             'herramienta_id' => $herramienta->id,
             'fecha_reserva' => Carbon::now(),
-            'fecha_devolucion_esperada' => Carbon::now()->addHour(), // Límite para retirar de 1 hora
+            'fecha_devolucion_esperada' => Carbon::now()->addDay(), // Ventana de reserva de 24 horas
             'estado' => 'reservado',
         ]);
 
         // Bloquear la herramienta en el inventario general
         $herramienta->update(['estado' => 'prestado']);
 
-        // Notificar a todos los administradores
+        // Notificar a todos los coordinadores
         $admins = Usuario::where('rol', 'admin')->get();
         foreach ($admins as $admin) {
             $admin->notify(new NuevaReservaNotification($prestamo));
         }
 
-        return back()->with('success', '¡Herramienta separada! Tienes 1 hora para retirarla en ventanilla.');
+        return back()->with('success', '¡Herramienta separada! Recuerda retirarla en ventanilla lo antes posible.');
     }
 
     /**
@@ -66,6 +66,12 @@ class PrestamoController extends Controller
         }
 
         return view('prestamos.devolucion', compact('prestamo'));
+    }
+
+    public function comprobante(Prestamo $prestamo)
+    {
+        $prestamo->load(['usuario', 'peticion.docente', 'herramienta']);
+        return view('prestamos.comprobante', compact('prestamo'));
     }
 
     /**
@@ -124,8 +130,22 @@ class PrestamoController extends Controller
 
         $path = $request->file('foto_devolucion')->store('devoluciones', 'public');
 
+        // Guardar Firma si existe
+        $firmaPath = null;
+        if ($request->filled('signature_data')) {
+            $data = $request->input('signature_data');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $data = base64_decode($data);
+                $firmaName = 'sig_' . time() . '_' . $prestamo->id . '.png';
+                \Storage::disk('public')->put('firmas/' . $firmaName, $data);
+                $firmaPath = 'firmas/' . $firmaName;
+            }
+        }
+
         $prestamo->update([
             'foto_devolucion' => $path,
+            'firma_devolucion' => $firmaPath,
             'checklist_accesorios' => $request->input('accesorios_recibidos', []),
             'observaciones' => $request->observaciones,
             'estado' => 'devuelto',
@@ -183,6 +203,57 @@ class PrestamoController extends Controller
             }
         }
 
-        return redirect()->route('dashboard')->with('success', 'Herramienta recibida e ingresada al sistema.');
+        return redirect()->route('dashboard')->with('success', 'Herramienta recibida correctamente.');
+    }
+
+    /**
+     * Auditoría de préstamos desde la bitácora
+     */
+    public function auditar(Request $request, Prestamo $prestamo)
+    {
+        $request->validate([
+            'estado' => 'required|in:aprobado,incidencia',
+            'notas' => 'nullable|string'
+        ]);
+
+        $prestamo->update([
+            'auditoria_estado' => $request->estado,
+            'auditoria_notas' => $request->notas
+        ]);
+
+        // Si es incidencia, podemos marcar la herramienta como mantenimiento/perdido
+        if ($request->estado === 'incidencia') {
+            $prestamo->herramienta->update(['estado' => 'mantenimiento']);
+            
+            // Notificar al estudiante
+            $prestamo->usuario->notify(new \App\Notifications\IncidenciaRegistrada($prestamo, $request->notas));
+        } else {
+            // Si se aprueba, aseguramos que la herramienta esté disponible
+            $prestamo->herramienta->update(['estado' => 'disponible']);
+        }
+
+        return back()->with('success', 'Auditoría registrada correctamente.');
+    }
+
+    /**
+     * Aprobar todas las devoluciones pendientes
+     */
+    public function auditarTodos(Request $request)
+    {
+        $prestamosPendientes = Prestamo::where('estado', 'devuelto')
+            ->where('auditoria_estado', 'pendiente')
+            ->get();
+
+        $count = 0;
+        foreach ($prestamosPendientes as $prestamo) {
+            $prestamo->update([
+                'auditoria_estado' => 'aprobado',
+                'auditoria_notas' => 'Aprobado masivamente.'
+            ]);
+            $prestamo->herramienta->update(['estado' => 'disponible']);
+            $count++;
+        }
+
+        return back()->with('success', $count . ' devoluciones fueron aprobadas masivamente sin novedades.');
     }
 }

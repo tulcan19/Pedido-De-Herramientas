@@ -114,8 +114,81 @@
         .btn-promote:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(204,167,91,.45); }
         .btn-promote .material-symbols-outlined { font-size: 15px; }
 
+        .action-btn {
+            width: 34px; height: 34px; border-radius: 10px; border: none;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background .15s, transform .15s;
+        }
+        .action-btn:hover { transform: translateY(-1px); }
+        .action-btn.edit { background: #fdf8ee; color: #a07a2a; }
+        .action-btn.edit:hover { background: #fdf0d0; }
+
         .graduated-tag { font-size: .75rem; color: #cca75b; font-weight: 700; display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
         .graduated-tag .material-symbols-outlined { font-size: 15px; }
+
+        /* ── MODAL PREMIUM ── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 999;
+            background: rgba(15,20,40,.6); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: #fff; border-radius: 24px; width: 100%; max-width: 480px;
+            box-shadow: 0 30px 80px rgba(0,0,0,.25);
+            transform: translateY(20px) scale(.97);
+            transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-top {
+            background: linear-gradient(135deg, #16213e, #23325b);
+            padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1rem;
+        }
+        .modal-icon { width: 44px; height: 44px; background: rgba(204,167,91,.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .modal-icon .material-symbols-outlined { color: #cca75b; font-size: 22px; }
+        .modal-top h3 { color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0; }
+        .modal-top p { color: #a0b0cc; font-size: .8rem; margin: 0; }
+        .modal-close {
+            margin-left: auto; background: rgba(255,255,255,.1); border: none;
+            width: 32px; height: 32px; border-radius: 8px; color: #fff;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background .15s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,.2); }
+        .modal-close .material-symbols-outlined { font-size: 18px; }
+
+        .modal-body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.1rem; }
+        .modal-footer { padding: 1rem 2rem 1.75rem; display: flex; gap: .75rem; justify-content: flex-end; }
+        .btn-cancel {
+            background: #f3f4f6; color: #6b7280; border: none; padding: .7rem 1.4rem;
+            border-radius: 10px; font-family: 'Outfit', sans-serif; font-weight: 700;
+            font-size: .85rem; cursor: pointer; transition: background .15s;
+        }
+        .btn-cancel:hover { background: #e5e7eb; }
+        .btn-save {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: linear-gradient(135deg, #cca75b, #a07a2a);
+            color: #16213e; border: none; padding: .7rem 1.6rem;
+            border-radius: 10px; font-family: 'Outfit', sans-serif;
+            font-weight: 800; font-size: .85rem; cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 4px 14px rgba(204,167,91,.35);
+        }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(204,167,91,.4); }
+        .btn-save .material-symbols-outlined { font-size: 17px; }
+
+        .field-group { display: flex; flex-direction: column; gap: .4rem; }
+        .field-label { font-size: .75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
+        .field-input {
+            border: 1.5px solid #e5e7eb; border-radius: 12px;
+            padding: .7rem 1rem; font-family: 'Outfit', sans-serif; font-size: .9rem;
+            color: #16213e; background: #fff; transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .field-input:focus { border-color: #cca75b; box-shadow: 0 0 0 3px rgba(204,167,91,.12); }
     </style>
 
     <div class="est-root">
@@ -125,7 +198,7 @@
             <div class="est-hero-inner">
                 <div class="est-badge">
                     <span class="material-symbols-outlined" style="font-size:13px;">manage_accounts</span>
-                    Panel Administrativo
+                    Panel de Coordinación
                 </div>
                 <h1 class="est-hero-title">Gestión de <span>Estudiantes</span></h1>
                 <p class="est-hero-sub">Consulta el semestre actual de cada estudiante y promuévelo cuando corresponda.</p>
@@ -212,22 +285,30 @@
                                         </div>
                                     </td>
                                     <td style="text-align:right;">
-                                        @if($estudiante->semestre < 6)
-                                            <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit"
-                                                    onclick="return confirm('¿Promover a {{ $estudiante->nombre }} al semestre {{ $estudiante->semestre + 1 }}?')"
-                                                    class="btn-promote">
-                                                    <span class="material-symbols-outlined">trending_up</span>
-                                                    Promover
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="graduated-tag">
-                                                <span class="material-symbols-outlined">workspace_premium</span>
-                                                Último semestre
-                                            </span>
-                                        @endif
+                                        <div style="display:flex; align-items:center; justify-content:flex-end; gap:.5rem;">
+                                            <button type="button" 
+                                                onclick="openEditModal({{ $estudiante->id }}, '{{ $estudiante->nombre }}', '{{ $estudiante->cedula }}', {{ $estudiante->semestre }})"
+                                                class="action-btn edit" title="Editar Estudiante">
+                                                <span class="material-symbols-outlined">edit</span>
+                                            </button>
+
+                                            @if($estudiante->semestre < 6)
+                                                <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        onclick="return confirm('¿Promover a {{ $estudiante->nombre }} al semestre {{ $estudiante->semestre + 1 }}?')"
+                                                        class="btn-promote">
+                                                        <span class="material-symbols-outlined">trending_up</span>
+                                                        Promover
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="graduated-tag">
+                                                    <span class="material-symbols-outlined">workspace_premium</span>
+                                                    Máximo
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -244,4 +325,82 @@
             </div>
         </div>
     </div>
+
+    {{-- MODAL EDICIÓN --}}
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-top">
+                <div class="modal-icon"><span class="material-symbols-outlined">edit_note</span></div>
+                <div>
+                    <h3>Editar Estudiante</h3>
+                    <p>Actualiza la información del estudiante</p>
+                </div>
+                <button class="modal-close" onclick="closeModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="editForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="field-group">
+                        <label class="field-label">Nombre Completo</label>
+                        <input type="text" name="nombre" id="edit_nombre" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Cédula</label>
+                        <input type="text" name="cedula" id="edit_cedula" class="field-input" maxlength="10" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Semestre</label>
+                        <select name="semestre" id="edit_semestre" class="field-input" required>
+                            <option value="1">1° Semestre</option>
+                            <option value="2">2° Semestre</option>
+                            <option value="3">3° Semestre</option>
+                            <option value="4">4° Semestre</option>
+                            <option value="5">5° Semestre</option>
+                            <option value="6">6° Semestre</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Nueva Contraseña (Opcional)</label>
+                        <input type="password" name="password" id="edit_password" class="field-input" placeholder="Dejar en blanco para no cambiarla">
+                        <span style="font-size:.72rem; color:#9ca3af;">Si dejas este campo vacío, se mantendrá la contraseña actual.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-save">
+                        <span class="material-symbols-outlined">save</span>
+                        Actualizar Datos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, nombre, cedula, semestre) {
+            document.getElementById('editForm').action = `/usuarios/${id}`;
+            document.getElementById('edit_nombre').value = nombre;
+            document.getElementById('edit_cedula').value = cedula;
+            document.getElementById('edit_semestre').value = semestre;
+            document.getElementById('editModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
 </x-app-layout>
