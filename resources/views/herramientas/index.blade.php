@@ -291,19 +291,12 @@
                                 <tr>
                                     <td>
                                         <div class="tool-name-cell">
-                                            <div class="relative">
-                                                <img src="{{ $herramienta->imagen_url }}" class="tool-thumb" alt="{{ $herramienta->nombre }}">
-                                                @if($herramienta->es_alto_valor)
-                                                    <div class="absolute -top-1 -right-1" title="Alto Valor">
-                                                        <span class="material-symbols-outlined text-corporate-gold bg-white rounded-full text-[14px]">stars</span>
-                                                    </div>
-                                                @endif
-                                            </div>
+                                            <img src="{{ $herramienta->imagen_url }}" class="tool-thumb" alt="{{ $herramienta->nombre }}">
                                             <div class="flex flex-col">
                                                 <span class="tool-name-text">{{ $herramienta->nombre }}</span>
                                                 @if($herramienta->es_alto_valor)
-                                                    <span class="text-[9px] text-corporate-gold font-bold uppercase tracking-tighter flex items-center gap-0.5">
-                                                        <span class="material-symbols-outlined text-[10px]">inventory_2</span> Alto Valor
+                                                    <span class="text-[9px] font-bold uppercase tracking-tighter flex items-center gap-1 mt-0.5" style="color: #cca75b;">
+                                                        <span class="material-symbols-outlined text-[11px]">stars</span> Alto Valor
                                                     </span>
                                                 @endif
                                             </div>

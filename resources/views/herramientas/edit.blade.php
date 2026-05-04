@@ -298,10 +298,10 @@
                             <div class="field-group">
                                 <label class="field-label" for="estado">Estado Actual</label>
                                 <select id="estado" name="estado" class="field-select">
-                                    <option value="disponible" {{ old('estado', $herramienta->estado) == 'disponible' ? 'selected' : '' }}>✅ Disponible</option>
-                                    <option value="prestado"   {{ old('estado', $herramienta->estado) == 'prestado'   ? 'selected' : '' }}>🔵 Prestado</option>
-                                    <option value="mantenimiento" {{ old('estado', $herramienta->estado) == 'mantenimiento' ? 'selected' : '' }}>🔴 En Mantenimiento</option>
-                                    <option value="perdido"    {{ old('estado', $herramienta->estado) == 'perdido'       ? 'selected' : '' }}>🔍 Perdido / Fuera de Servicio</option>
+                                    <option value="disponible" {{ old('estado', $herramienta->estado) == 'disponible' ? 'selected' : '' }}>Disponible</option>
+                                    <option value="prestado"   {{ old('estado', $herramienta->estado) == 'prestado'   ? 'selected' : '' }}>Prestado</option>
+                                    <option value="mantenimiento" {{ old('estado', $herramienta->estado) == 'mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
+                                    <option value="perdido"    {{ old('estado', $herramienta->estado) == 'perdido'       ? 'selected' : '' }}>Perdido / Fuera de Servicio</option>
                                 </select>
                                 @error('estado')<div class="field-error">{{ $message }}</div>@enderror
                             </div>
@@ -391,10 +391,13 @@
                                     <span class="material-symbols-outlined text-sm text-[#cca75b]">qr_code_scanner</span>
                                     Link de Petición
                                 </span>
-                                <div class="p-2 bg-white rounded-xl shadow-inner border border-gray-100 mb-3" style="min-width: 136px; min-height: 136px;">
+                                <div id="qr-container" class="p-2 bg-white rounded-xl shadow-inner border border-gray-100 mb-3" style="min-width: 136px; min-height: 136px;">
                                     {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->margin(0)->color(22, 33, 62)->generate(route('peticiones.qr-add', $herramienta)) !!}
                                 </div>
-                                <span class="text-[10px] text-gray-400 text-center max-w-[150px] leading-tight">Imprime y pega este código en la herramienta para peticiones automáticas con el celular.</span>
+                                <button type="button" onclick="descargarQR()" class="mt-1 mb-3 bg-[#fdf8ee] text-[#a07a2a] border border-[#cca75b] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-[#fdf0d0] transition shadow-sm">
+                                    <span class="material-symbols-outlined text-[14px]">download</span> Descargar QR
+                                </button>
+                                <span class="text-[10px] text-gray-400 text-center max-w-[150px] leading-tight">Imprime y pega este código en la herramienta.</span>
                             </div>
                         </div>
                     </div>
@@ -431,6 +434,34 @@
                 };
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        function descargarQR() {
+            const svg = document.querySelector('#qr-container svg');
+            if(!svg) return;
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            
+            // Tamaño escalado para mejor calidad (5x = 600x600px)
+            const scale = 5;
+            canvas.width = 120 * scale;
+            canvas.height = 120 * scale;
+            
+            img.onload = function() {
+                // Fondo blanco
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const a = document.createElement("a");
+                a.download = "QR_{{ $herramienta->codigo_qr }}.png";
+                a.href = canvas.toDataURL("image/png");
+                a.click();
+            };
+            
+            img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
         }
 
         function addAccesorio(value = '', estado = 'disponible') {
