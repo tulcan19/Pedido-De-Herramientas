@@ -33,9 +33,6 @@ class UsuarioController extends Controller
         }
         */
 
-        if ($usuario->semestre >= 6) {
-            return back()->with('error', "El estudiante ya está en el último semestre.");
-        }
 
         $usuario->update([
             'semestre' => $usuario->semestre + 1,
@@ -58,7 +55,7 @@ class UsuarioController extends Controller
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
             'email' => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
-            'semestre' => 'required|integer|min:1|max:6',
+            'semestre' => 'required|integer|min:1',
             'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',

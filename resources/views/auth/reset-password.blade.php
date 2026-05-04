@@ -15,8 +15,8 @@
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-semibold text-corporate-gold uppercase tracking-wider mb-2">Correo Electrónico</label>
-            <input id="email" class="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-corporate-gold focus:ring-1 focus:ring-corporate-gold transition-all duration-300 outline-none" 
-                   type="email" name="email" :value="old('email', $request->email)" required readonly />
+            <input id="email" class="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-corporate-gold focus:ring-1 focus:ring-corporate-gold transition-all duration-300 outline-none opacity-70 cursor-not-allowed" 
+                   type="email" name="email" value="{{ old('email', $request->email) }}" required readonly />
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400" />
         </div>
 

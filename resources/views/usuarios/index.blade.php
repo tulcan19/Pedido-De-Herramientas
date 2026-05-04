@@ -214,8 +214,9 @@
                     <div class="stat-chip">
                         <div class="chip-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
                         <div>
-                            <div class="chip-val">{{ $estudiantes->where('semestre', 6)->count() }}</div>
-                            <div class="chip-lbl">En último semestre</div>
+                            @php $maxSemestre = $estudiantes->max('semestre') ?? 1; @endphp
+                            <div class="chip-val">{{ $estudiantes->where('semestre', $maxSemestre)->count() }}</div>
+                            <div class="chip-lbl">En último semestre ({{ $maxSemestre }}°)</div>
                         </div>
                     </div>
                     <div class="stat-chip">
@@ -261,7 +262,8 @@
                             @forelse ($estudiantes as $estudiante)
                                 @php
                                     $semClasses = ['','sem-1','sem-2','sem-3','sem-4','sem-5','sem-6'];
-                                    $semClass   = $semClasses[$estudiante->semestre] ?? 'sem-1';
+                                    // Si es mayor a 6, recicla los colores usando módulo
+                                    $semClass   = $semClasses[$estudiante->semestre > 6 ? (($estudiante->semestre - 1) % 6) + 1 : $estudiante->semestre] ?? 'sem-1';
                                     $initials   = collect(explode(' ', $estudiante->nombre))->map(fn($w) => strtoupper($w[0] ?? ''))->take(2)->join('');
                                 @endphp
                                 <tr>
@@ -292,7 +294,6 @@
                                                 <span class="material-symbols-outlined">edit</span>
                                             </button>
 
-                                            @if($estudiante->semestre < 6)
                                                 <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
                                                     @csrf
                                                     <button type="submit"
@@ -302,12 +303,6 @@
                                                         Promover
                                                     </button>
                                                 </form>
-                                            @else
-                                                <span class="graduated-tag">
-                                                    <span class="material-symbols-outlined">workspace_premium</span>
-                                                    Máximo
-                                                </span>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -358,14 +353,7 @@
                     </div>
                     <div class="field-group">
                         <label class="field-label">Semestre</label>
-                        <select name="semestre" id="edit_semestre" class="field-input" required>
-                            <option value="1">1° Semestre</option>
-                            <option value="2">2° Semestre</option>
-                            <option value="3">3° Semestre</option>
-                            <option value="4">4° Semestre</option>
-                            <option value="5">5° Semestre</option>
-                            <option value="6">6° Semestre</option>
-                        </select>
+                        <input type="number" name="semestre" id="edit_semestre" class="field-input" min="1" required>
                     </div>
                     <div class="field-group">
                         <label class="field-label">Nueva Contraseña (Opcional)</label>
