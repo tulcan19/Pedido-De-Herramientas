@@ -95,36 +95,45 @@
                     </div>
 
                     <div class="form-grid">
-                        <div class="input-group">
+                        <div class="input-group" style="position:relative;">
                             <span class="input-label">Docente:</span>
-                            <select name="docente_id" id="docente_id" class="input-line" required onchange="updateTeacherSignature(this)">
-                                <option value="" disabled selected>Seleccione un docente</option>
-                                @foreach($docentes as $docente)
-                                <option value="{{ $docente->id }}" {{ old('docente_id') == $docente->id ? 'selected' : '' }} data-asignatura="{{ $docente->asignatura }}">{{ $docente->nombre }}</option>
-                                @endforeach
-                            </select>
+                            <div style="flex:1;">
+                                <select name="docente_id" id="docente_id" class="input-line w-full" required onchange="updateTeacherSignature(this)">
+                                    <option value="" disabled selected>Seleccione un docente</option>
+                                    @foreach($docentes as $docente)
+                                    <option value="{{ $docente->id }}" {{ old('docente_id') == $docente->id ? 'selected' : '' }} data-asignatura="{{ $docente->asignatura }}">{{ $docente->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                @error('docente_id') <span class="form-error absolute -bottom-5 left-0">{{ $message }}</span> @enderror
+                            </div>
                         </div>
-                        <div class="input-group">
+                        <div class="input-group" style="position:relative;">
                             <span class="input-label">Asignatura:</span>
-                            <select name="asignatura" id="asignatura" class="input-line" required>
-                                <option value="" disabled selected>Seleccione docente primero</option>
-                            </select>
+                            <div style="flex:1;">
+                                <select name="asignatura" id="asignatura" class="input-line w-full" required>
+                                    <option value="" disabled {{ !old('asignatura') ? 'selected' : '' }}>Seleccione docente primero</option>
+                                    @if(old('asignatura'))
+                                        <option value="{{ old('asignatura') }}" selected>{{ old('asignatura') }}</option>
+                                    @endif
+                                </select>
+                                @error('asignatura') <span class="form-error absolute -bottom-5 left-0">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                         <div class="input-group">
                             <span class="input-label">Fecha:</span>
                             <input type="text" class="input-line" value="{{ now()->format('d / m / Y') }}" disabled>
                         </div>
-                        <div class="input-group">
+                        <div class="input-group" style="position:relative;">
                             <span class="input-label">Semestre de la Asignatura:</span>
-                            <select name="semestre_materia" class="input-line" required>
-                                <option value="" disabled selected>Seleccione el semestre</option>
-                                <option value="1">1° Semestre</option>
-                                <option value="2">2° Semestre</option>
-                                <option value="3">3° Semestre</option>
-                                <option value="4">4° Semestre</option>
-                                <option value="5">5° Semestre</option>
-                                <option value="6">6° Semestre</option>
-                            </select>
+                            <div style="flex:1;">
+                                <select name="semestre_materia" class="input-line w-full" required>
+                                    <option value="" disabled {{ !old('semestre_materia') ? 'selected' : '' }}>Seleccione el semestre</option>
+                                    @foreach(range(1, 6) as $sem)
+                                        <option value="{{ $sem }}" {{ old('semestre_materia') == $sem ? 'selected' : '' }}>{{ $sem }}° Semestre</option>
+                                    @endforeach
+                                </select>
+                                @error('semestre_materia') <span class="form-error absolute -bottom-5 left-0">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                         <div class="input-group">
                             <span class="input-label">Hora de ingreso:</span>
@@ -136,15 +145,23 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="input-group" style="grid-column: 1 / -1;">
+                        <div class="input-group" style="grid-column: 1 / -1; position:relative;">
                             <span class="input-label">Práctica a realizar:</span>
-                            <input type="text" name="practica" class="input-line" placeholder="Título o tema de la práctica" value="{{ old('practica') }}" required>
+                            <div style="flex:1;">
+                                <input type="text" name="practica" class="input-line w-full" placeholder="Título o tema de la práctica" value="{{ old('practica') }}" required>
+                                @error('practica') <span class="form-error absolute -bottom-5 left-0">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                     </div>
 
                     @if ($errors->any())
                         <div class="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                            Corrige los errores en el formulario para continuar.
+                            <strong>Corrige los siguientes errores:</strong>
+                            <ul class="list-disc pl-5 mt-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
                     @endif
 
