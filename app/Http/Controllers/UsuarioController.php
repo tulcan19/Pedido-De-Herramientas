@@ -57,15 +57,18 @@ class UsuarioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
+            'email' => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
             'semestre' => 'required|integer|min:1|max:6',
             'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
+            'email.unique' => 'Este correo electrónico ya está registrado para otro usuario.',
         ]);
 
         $dataToUpdate = [
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
+            'email' => $request->email,
             'semestre' => $request->semestre,
         ];
 

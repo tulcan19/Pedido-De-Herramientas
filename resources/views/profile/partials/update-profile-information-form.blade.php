@@ -36,6 +36,20 @@
         </div>
     </div>
 
+    {{-- Correo Electrónico (solo lectura) --}}
+    <div class="prof-field">
+        <label for="email_display">Correo Electrónico</label>
+        <div class="prof-input-wrap">
+            <span class="material-symbols-outlined ico">mail</span>
+            <input type="email" id="email_display" class="prof-input readonly"
+                   value="{{ $user->email ?? 'No registrado' }}" disabled>
+        </div>
+        <div class="prof-hint">
+            <span class="material-symbols-outlined">info</span>
+            El correo electrónico solo puede ser modificado por el coordinador.
+        </div>
+    </div>
+
     {{-- Semestre (solo lectura para estudiantes) --}}
     @if($user->rol === 'estudiante')
     <div class="prof-field">

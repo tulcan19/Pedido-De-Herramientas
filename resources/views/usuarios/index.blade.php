@@ -287,7 +287,7 @@
                                     <td style="text-align:right;">
                                         <div style="display:flex; align-items:center; justify-content:flex-end; gap:.5rem;">
                                             <button type="button" 
-                                                onclick="openEditModal({{ $estudiante->id }}, '{{ $estudiante->nombre }}', '{{ $estudiante->cedula }}', {{ $estudiante->semestre }})"
+                                                onclick="openEditModal({{ $estudiante->id }}, '{{ $estudiante->nombre }}', '{{ $estudiante->cedula }}', {{ $estudiante->semestre }}, '{{ $estudiante->email }}')"
                                                 class="action-btn edit" title="Editar Estudiante">
                                                 <span class="material-symbols-outlined">edit</span>
                                             </button>
@@ -353,6 +353,10 @@
                         <input type="text" name="cedula" id="edit_cedula" class="field-input" maxlength="10" required>
                     </div>
                     <div class="field-group">
+                        <label class="field-label">Correo Electrónico (Para restablecer contraseña)</label>
+                        <input type="email" name="email" id="edit_email" class="field-input" placeholder="estudiante@ejemplo.com">
+                    </div>
+                    <div class="field-group">
                         <label class="field-label">Semestre</label>
                         <select name="semestre" id="edit_semestre" class="field-input" required>
                             <option value="1">1° Semestre</option>
@@ -381,11 +385,12 @@
     </div>
 
     <script>
-        function openEditModal(id, nombre, cedula, semestre) {
+        function openEditModal(id, nombre, cedula, semestre, email) {
             document.getElementById('editForm').action = `/usuarios/${id}`;
             document.getElementById('edit_nombre').value = nombre;
             document.getElementById('edit_cedula').value = cedula;
             document.getElementById('edit_semestre').value = semestre;
+            document.getElementById('edit_email').value = email || '';
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }

@@ -62,6 +62,18 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204,167,91,0.4); }
 
         input[type="file"] { display: none; }
+
+        @media(max-width: 768px) {
+            .paper-sheet { padding: 1.25rem 1rem; border-radius: 8px; }
+            .sheet-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .sheet-header img { height: 35px !important; }
+            .info-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .tools-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .tools-table { min-width: 480px; }
+            .signatures { flex-direction: column; gap: 1.5rem; }
+            .camera-box { padding: 1.5rem 1rem; }
+            .btn-submit { width: 100%; justify-content: center; padding: .9rem 1rem; }
+        }
     </style>
 
     <div class="sheet-root">

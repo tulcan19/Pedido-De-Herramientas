@@ -208,6 +208,22 @@
 
         /* ── ERROR ── */
         .field-error { font-size: .75rem; color: #b91c1c; margin-top: .25rem; }
+
+        @media(max-width: 768px) {
+            .edit-hero { padding: 1.5rem 1rem 4rem; }
+            .edit-hero-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .edit-hero-title { font-size: 1.2rem; }
+            .form-wrap { padding: 0 0.75rem 2rem; margin-top: -2rem; }
+            .form-section { padding: 1.25rem 1rem; }
+            .form-footer { padding: 1rem; flex-direction: column; gap: 0.75rem; }
+            .btn-cancel { order: 2; }
+            .btn-save { width: 100%; justify-content: center; order: 1; }
+            .qr-input-group { flex-direction: column; }
+            .btn-regenerar { width: 100%; justify-content: center; }
+            .img-upload-area { flex-direction: column; align-items: center; text-align: center; }
+            .img-upload-info { min-width: 0; }
+            .qr-history-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
     </style>
 
     <div class="edit-root">

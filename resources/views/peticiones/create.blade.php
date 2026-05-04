@@ -72,10 +72,19 @@
         .form-error { font-size: 12px; color: #dc2626; margin-top: 4px; display: block; }
 
         @media(max-width: 768px) {
-            .paper-sheet { padding: 2rem 1.5rem; }
-            .form-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .signatures { flex-direction: column; gap: 2rem; }
-            .tools-table-wrapper { overflow-x: auto; }
+            .paper-sheet { padding: 1.25rem 1rem; border-radius: 8px; }
+            .sheet-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .sheet-header img { height: 35px; }
+            .form-grid { grid-template-columns: 1fr; gap: 1rem 0; }
+            .input-group { flex-direction: column; align-items: flex-start; gap: .25rem; }
+            .input-label { font-size: .85rem; white-space: normal; }
+            .input-line { width: 100%; font-size: .9rem; }
+            .tools-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .tools-table { min-width: 500px; }
+            .signatures { flex-direction: column; gap: 1.5rem; }
+            .form-actions { flex-direction: column; }
+            .btn-submit { width: 100%; justify-content: center; padding: .9rem 1rem; font-size: .95rem; }
+            .obs-input { font-size: .9rem; }
         }
     </style>
 

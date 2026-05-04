@@ -26,6 +26,7 @@
             <input type="password" id="update_password_password" name="password"
                    class="prof-input" placeholder="••••••••" autocomplete="new-password">
         </div>
+        <p class="prof-hint mt-1">Debe contener al menos 8 caracteres, mayúsculas, minúsculas, números y símbolos.</p>
         @if($errors->updatePassword->get('password'))
             <div class="prof-error">
                 <span class="material-symbols-outlined" style="font-size:.9rem;">error</span>

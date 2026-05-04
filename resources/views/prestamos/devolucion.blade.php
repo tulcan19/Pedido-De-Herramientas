@@ -83,9 +83,16 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204,167,91,.4); }
 
         @media(max-width: 768px) {
-            .paper-sheet { padding: 2rem 1.5rem; }
+            .paper-sheet { padding: 1.25rem 1rem; border-radius: 8px; }
+            .sheet-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
             .form-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .signatures { grid-template-columns: 1fr; gap: 2rem; }
+            .signatures { grid-template-columns: 1fr; gap: 1.5rem; }
+            .tools-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .tools-table { min-width: 500px; }
+            .camera-box { padding: 1.25rem 1rem; }
+            .form-actions { flex-direction: column; }
+            .btn-submit { width: 100%; justify-content: center; padding: .9rem 1rem; font-size: .95rem; }
+            canvas#signature-pad { height: 120px; }
         }
     </style>
 
