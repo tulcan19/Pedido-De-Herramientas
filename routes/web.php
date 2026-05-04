@@ -96,3 +96,16 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Ruta de emergencia para servir imágenes en servidores sin storage:link
+Route::get('/storage/{path}', function ($path) {
+    $path = str_replace('..', '', $path); // Seguridad básica
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+    
+    $file = \Illuminate\Support\Facades\Storage::disk('public')->get($path);
+    $type = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($path);
+    
+    return response($file)->header('Content-Type', $type);
+})->where('path', '.*');
