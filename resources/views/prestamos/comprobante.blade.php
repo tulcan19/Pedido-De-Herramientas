@@ -145,7 +145,7 @@
                     <div>
                         <div class="section-header">Evidencia de Devolución</div>
                         @if($prestamo->foto_devolucion)
-                            <img src="{{ asset('storage/' . $prestamo->foto_devolucion) }}" class="evidence-img" alt="Evidencia">
+                            <img src="{{ route('archivo.ver', ['path' => $prestamo->foto_devolucion]) }}" class="evidence-img" alt="Evidencia">
                         @else
                             <div class="p-8 border-2 border-dashed border-gray-200 rounded-xl text-center text-gray-400">
                                 Sin evidencia fotográfica registrada
@@ -160,7 +160,7 @@
 
                         @if($prestamo->firma_devolucion)
                             <div class="section-header">Firma Digital (Registro)</div>
-                            <img src="{{ asset('storage/' . $prestamo->firma_devolucion) }}" style="height:80px; width:auto; border-bottom:1px solid #16213e;" alt="Firma">
+                            <img src="{{ route('archivo.ver', ['path' => $prestamo->firma_devolucion]) }}" style="height:80px; width:auto; border-bottom:1px solid #16213e;" alt="Firma">
                         @endif
                     </div>
                 </div>

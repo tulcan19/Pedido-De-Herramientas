@@ -203,7 +203,7 @@
                             @if($prestamo->peticion && $prestamo->peticion->foto_entrega)
                                 <div class="section-header">Foto de Entrega (Referencia)</div>
                                 <div class="mb-4 rounded-lg overflow-hidden border border-gray-200">
-                                    <img src="{{ asset('storage/' . $prestamo->peticion->foto_entrega) }}" alt="Foto entrega" class="w-full h-48 object-cover cursor-zoom-in" onclick="window.open(this.src)">
+                                    <img src="{{ route('archivo.ver', ['path' => $prestamo->peticion->foto_entrega]) }}" alt="Foto entrega" class="w-full h-48 object-cover cursor-zoom-in" onclick="window.open(this.src)">
                                     <div class="bg-gray-50 p-2 text-[10px] text-gray-500 text-center">Estado registrado al inicio del préstamo</div>
                                 </div>
                             @endif

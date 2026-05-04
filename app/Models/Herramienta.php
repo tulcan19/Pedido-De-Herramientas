@@ -48,7 +48,7 @@ class Herramienta extends Model
     public function getImagenUrlAttribute()
     {
         if ($this->imagen && \Storage::disk('public')->exists($this->imagen)) {
-            return \Storage::url($this->imagen);
+            return route('archivo.ver', ['path' => $this->imagen]);
         }
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->nombre) . '&color=23325b&background=ebf1ff';

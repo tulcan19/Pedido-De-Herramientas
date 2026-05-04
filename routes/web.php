@@ -97,8 +97,12 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Ruta de emergencia para servir imágenes en servidores sin storage:link
-Route::get('/storage/{path}', function ($path) {
+// Ruta de emergencia infalible para servidores (Nginx/Laravel Cloud)
+// Se usa un query string (?path=...) para evitar que el servidor web lo bloquee creyendo que es un archivo estático faltante.
+Route::get('/archivo/ver', function (\Illuminate\Http\Request $request) {
+    $path = $request->query('path');
+    if (!$path) abort(404);
+    
     $path = str_replace('..', '', $path); // Seguridad básica
     if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
         abort(404);
@@ -108,4 +112,4 @@ Route::get('/storage/{path}', function ($path) {
     $type = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($path);
     
     return response($file)->header('Content-Type', $type);
-})->where('path', '.*');
+})->name('archivo.ver');
