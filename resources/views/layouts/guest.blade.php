@@ -30,10 +30,9 @@
             
             <!-- Side A: Form and Branding -->
             <div class="z-20 flex flex-col justify-center w-full lg:w-5/12 p-6 sm:p-10 lg:p-20 bg-corporate-blue shadow-[30px_0_60px_rgba(0,0,0,0.5)] relative min-h-screen shrink-0">
-                <!-- Branding Header -->
                 <div class="mb-12 lg:mb-auto flex justify-center lg:justify-start">
                     <a href="/" class="transition-transform hover:scale-105 inline-block">
-                        <x-application-logo class="w-auto h-14 sm:h-16 fill-current text-corporate-gold" />
+                        <x-application-logo class="w-auto h-14 sm:h-16 fill-current text-white" />
                     </a>
                 </div>
 
