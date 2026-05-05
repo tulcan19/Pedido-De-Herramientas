@@ -200,8 +200,8 @@
                     <span class="material-symbols-outlined" style="font-size:13px;">school</span>
                     Panel de Coordinación
                 </div>
-                <h1 class="doc-hero-title">Personal <span>Docente</span></h1>
-                <p class="doc-hero-sub">Registra y gestiona el cuerpo docente del taller mecánico.</p>
+                <h1 class="doc-hero-title">Docentes y <span>Coordinadores</span></h1>
+                <p class="doc-hero-sub">Registra y gestiona el cuerpo docente y administrativo del taller mecánico.</p>
             </div>
         </div>
 
@@ -220,7 +220,7 @@
                 <div class="doc-card-header">
                     <div class="doc-card-header-icon"><span class="material-symbols-outlined">person_add</span></div>
                     <div>
-                        <h3>Registrar Nuevo Docente</h3>
+                        <h3>Registrar Nuevo Personal</h3>
                         <span class="sub">Los datos de cédula se usarán como credenciales de acceso</span>
                     </div>
                 </div>
@@ -242,6 +242,14 @@
                             <input type="text" name="asignatura" class="field-input" placeholder="Ej. Autotrónica, Sistemas, Dibujo" value="{{ old('asignatura') }}" required>
                             @error('asignatura') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
+                        <div class="field-group">
+                            <label class="field-label">Rol del Usuario</label>
+                            <select name="rol" class="field-input" required style="cursor:pointer;">
+                                <option value="docente" {{ old('rol') == 'docente' ? 'selected' : '' }}>Docente</option>
+                                <option value="admin" {{ old('rol') == 'admin' ? 'selected' : '' }}>Coordinador (Admin)</option>
+                            </select>
+                            @error('rol') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">
@@ -257,16 +265,17 @@
                 <div class="doc-card-header">
                     <div class="doc-card-header-icon"><span class="material-symbols-outlined">group</span></div>
                     <div>
-                        <h3>Docentes Registrados</h3>
-                        <span class="sub">Cuerpo docente activo del taller</span>
+                        <h3>Personal Registrado</h3>
+                        <span class="sub">Cuerpo docente y administrativo activo del taller</span>
                     </div>
-                    <span class="badge-count" style="margin-left:auto;">{{ $docentes->count() }} docentes</span>
+                    <span class="badge-count" style="margin-left:auto;">{{ $docentes->count() }} usuarios</span>
                 </div>
                 <div class="doc-table-wrap">
                     <table class="doc-table">
                         <thead>
                             <tr>
-                                <th>Docente</th>
+                                <th>Usuario</th>
+                                <th>Rol</th>
                                 <th>Cédula</th>
                                 <th>Asignaturas</th>
                                 <th style="text-align:center;">Acciones</th>
@@ -277,11 +286,20 @@
                             <tr>
                                 <td>
                                     <div style="display:flex; align-items:center; gap:.75rem;">
-                                        <div class="docente-avatar">
-                                            <span class="material-symbols-outlined">school</span>
+                                        <div class="docente-avatar" style="{{ $docente->rol === 'admin' ? 'background: linear-gradient(135deg, #10b981, #047857);' : '' }}">
+                                            <span class="material-symbols-outlined" style="{{ $docente->rol === 'admin' ? 'color: #fff;' : '' }}">
+                                                {{ $docente->rol === 'admin' ? 'admin_panel_settings' : 'school' }}
+                                            </span>
                                         </div>
                                         <span class="docente-name">{{ $docente->nombre }}</span>
                                     </div>
+                                </td>
+                                <td>
+                                    @if($docente->rol === 'admin')
+                                        <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700;">Coordinador</span>
+                                    @else
+                                        <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700;">Docente</span>
+                                    @endif
                                 </td>
                                 <td style="font-family:monospace; font-size:.85rem; color:#6b7280;">{{ $docente->cedula }}</td>
                                 <td>
@@ -292,14 +310,14 @@
                                 <td>
                                     <div style="display:flex; align-items:center; justify-content:center; gap:.5rem;">
                                         <button type="button"
-                                            onclick="openEditModal({{ $docente->id }}, '{{ $docente->nombre }}', '{{ $docente->cedula }}', '{{ $docente->asignatura }}')"
-                                            class="action-btn edit" title="Editar Docente">
+                                            onclick="openEditModal({{ $docente->id }}, '{{ addslashes($docente->nombre) }}', '{{ $docente->cedula }}', '{{ addslashes($docente->asignatura) }}', '{{ $docente->rol }}')"
+                                            class="action-btn edit" title="Editar Personal">
                                             <span class="material-symbols-outlined">edit</span>
                                         </button>
                                         <form action="{{ route('docentes.destroy', $docente) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar a {{ $docente->nombre }}?')" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="action-btn delete" title="Eliminar Docente">
+                                            <button type="submit" class="action-btn delete" title="Eliminar Personal">
                                                 <span class="material-symbols-outlined">delete</span>
                                             </button>
                                         </form>
@@ -308,9 +326,9 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="empty-row">
-                                    <span class="material-symbols-outlined" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:#e5e7eb;">school</span>
-                                    No hay docentes registrados todavía.
+                                <td colspan="5" class="empty-row">
+                                    <span class="material-symbols-outlined" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:#e5e7eb;">group_off</span>
+                                    No hay personal registrado todavía.
                                 </td>
                             </tr>
                             @endforelse
@@ -328,8 +346,8 @@
             <div class="modal-top">
                 <div class="modal-icon"><span class="material-symbols-outlined">edit_note</span></div>
                 <div>
-                    <h3>Editar Docente</h3>
-                    <p>Actualiza los datos del personal docente</p>
+                    <h3>Editar Personal</h3>
+                    <p>Actualiza los datos del usuario seleccionado</p>
                 </div>
                 <button class="modal-close" onclick="closeModal()">
                     <span class="material-symbols-outlined">close</span>
@@ -350,8 +368,15 @@
                     </div>
                     <div class="field-group">
                         <label class="field-label">Asignaturas (separadas por comas)</label>
-                        <input type="text" name="asignatura" id="edit_asignatura" class="field-input" placeholder="Ej. Autotrónica, Sistemas" required>
-                        <span style="font-size:.72rem; color:#9ca3af;">Puedes ingresar una o varias materias separadas por comas.</span>
+                        <input type="text" name="asignatura" id="edit_asignatura" class="field-input" placeholder="Ej. Autotrónica, Sistemas">
+                        <span style="font-size:.72rem; color:#9ca3af;">Opcional para Coordinadores. Puedes ingresar una o varias materias separadas por comas.</span>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Rol del Usuario</label>
+                        <select name="rol" id="edit_rol" class="field-input" required style="cursor:pointer;">
+                            <option value="docente">Docente</option>
+                            <option value="admin">Coordinador (Admin)</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label class="field-label">Nueva Contraseña (Opcional)</label>
@@ -371,11 +396,12 @@
     </div>
 
     <script>
-        function openEditModal(id, nombre, cedula, asignatura) {
+        function openEditModal(id, nombre, cedula, asignatura, rol) {
             document.getElementById('editForm').action = `/docentes/${id}`;
             document.getElementById('edit_nombre').value = nombre;
             document.getElementById('edit_cedula').value = cedula;
             document.getElementById('edit_asignatura').value = asignatura;
+            document.getElementById('edit_rol').value = rol;
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }

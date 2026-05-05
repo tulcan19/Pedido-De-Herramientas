@@ -122,6 +122,8 @@
         .action-btn:hover { transform: translateY(-1px); }
         .action-btn.edit { background: #fdf8ee; color: #a07a2a; }
         .action-btn.edit:hover { background: #fdf0d0; }
+        .action-btn.demote { background: #fef2f2; color: #ef4444; }
+        .action-btn.demote:hover { background: #fee2e2; }
 
         .graduated-tag { font-size: .75rem; color: #cca75b; font-weight: 700; display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
         .graduated-tag .material-symbols-outlined { font-size: 15px; }
@@ -207,24 +209,73 @@
                     <div class="stat-chip">
                         <div class="chip-icon"><span class="material-symbols-outlined">groups</span></div>
                         <div>
-                            <div class="chip-val">{{ $estudiantes->count() }}</div>
+                            <div class="chip-val">{{ $allEstudiantes->count() }}</div>
                             <div class="chip-lbl">Estudiantes totales</div>
                         </div>
                     </div>
                     <div class="stat-chip">
                         <div class="chip-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
                         <div>
-                            @php $maxSemestre = $estudiantes->max('semestre') ?? 1; @endphp
-                            <div class="chip-val">{{ $estudiantes->where('semestre', $maxSemestre)->count() }}</div>
+                            @php $maxSemestre = $allEstudiantes->max('semestre') ?? 1; @endphp
+                            <div class="chip-val">{{ $allEstudiantes->where('semestre', $maxSemestre)->count() }}</div>
                             <div class="chip-lbl">En último semestre ({{ $maxSemestre }}°)</div>
                         </div>
                     </div>
                     <div class="stat-chip">
                         <div class="chip-icon"><span class="material-symbols-outlined">trending_up</span></div>
                         <div>
-                            <div class="chip-val">{{ $estudiantes->whereNotNull('ultimo_cambio_semestre')->count() }}</div>
+                            <div class="chip-val">{{ $allEstudiantes->whereNotNull('ultimo_cambio_semestre')->count() }}</div>
                             <div class="chip-lbl">Promovidos alguna vez</div>
                         </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <h3 style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin: 0;">Lista de Estudiantes Registrados</h3>
+                    
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <form method="POST" action="{{ route('usuarios.promover_todos') }}">
+                            @csrf
+                            @if(request('semestre'))
+                                <input type="hidden" name="semestre" value="{{ request('semestre') }}">
+                            @endif
+                            <button type="submit" 
+                                    onclick="return confirm('¿Promover a TODOS los estudiantes listados al siguiente semestre?')"
+                                    style="display: flex; align-items: center; gap: 0.5rem; background-color: #10b981; color: white; padding: 0.4rem 1.25rem; border-radius: 9999px; font-weight: 600; font-size: 0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.2s; border: none; cursor: pointer;"
+                                    onmouseover="this.style.backgroundColor='#059669'" 
+                                    onmouseout="this.style.backgroundColor='#10b981'"
+                                    title="Avanzar de semestre a todos los estudiantes de esta lista">
+                                <span class="material-symbols-outlined" style="font-size: 1.1rem;">upgrade</span>
+                                Promover Todos
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('usuarios.retroceder_todos') }}">
+                            @csrf
+                            @if(request('semestre'))
+                                <input type="hidden" name="semestre" value="{{ request('semestre') }}">
+                            @endif
+                            <button type="submit" 
+                                    onclick="return confirm('ATENCIÓN: ¿Estás seguro de que deseas RETROCEDER a todos los estudiantes listados al semestre anterior?')"
+                                    style="display: flex; align-items: center; gap: 0.5rem; background-color: #ef4444; color: white; padding: 0.4rem 1.25rem; border-radius: 9999px; font-weight: 600; font-size: 0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.2s; border: none; cursor: pointer;"
+                                    onmouseover="this.style.backgroundColor='#dc2626'" 
+                                    onmouseout="this.style.backgroundColor='#ef4444'"
+                                    title="Retroceder de semestre a todos los estudiantes de esta lista (deshacer promoción)">
+                                <span class="material-symbols-outlined" style="font-size: 1.1rem;">history</span>
+                                Retroceder Todos
+                            </button>
+                        </form>
+
+                        <form method="GET" action="{{ route('usuarios.index') }}" style="display: flex; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.1); padding: 0.25rem 0.25rem 0.25rem 1rem; border-radius: 9999px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                            <span class="material-symbols-outlined" style="font-size: 1.2rem; color: #d1d5db;">filter_list</span>
+                            <label for="filtro_semestre" style="font-size: 0.85rem; color: #f3f4f6; font-weight: 600; white-space: nowrap;">Filtrar:</label>
+                            <select name="semestre" id="filtro_semestre" onchange="this.form.submit()" style="padding: 0.4rem 2.5rem 0.4rem 1rem; border-radius: 9999px; border: none; background-color: white; font-size: 0.9rem; color: #1f2937; outline: none; cursor: pointer; transition: all 0.2s;">
+                                <option value="">Todos los Semestres</option>
+                                @foreach($semestresDisponibles as $sem)
+                                    <option value="{{ $sem }}" {{ request('semestre') == $sem ? 'selected' : '' }}>{{ $sem }}° Semestre</option>
+                                @endforeach
+                            </select>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -293,6 +344,15 @@
                                                 class="action-btn edit" title="Editar Estudiante">
                                                 <span class="material-symbols-outlined">edit</span>
                                             </button>
+                                            
+                                            <form action="{{ route('usuarios.retroceder', $estudiante) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" 
+                                                    onclick="return confirm('ATENCIÓN: ¿Retroceder a {{ $estudiante->nombre }} al semestre anterior?')"
+                                                    class="action-btn demote" title="Retroceder Estudiante">
+                                                    <span class="material-symbols-outlined">history</span>
+                                                </button>
+                                            </form>
 
                                                 <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
                                                     @csrf

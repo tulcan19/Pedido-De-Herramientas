@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('herramientas', HerramientaController::class)->except(['index', 'show']);
         Route::get('/usuarios', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuarios.index');
         Route::post('/usuarios/{usuario}/promover', [\App\Http\Controllers\UsuarioController::class, 'promover'])->name('usuarios.promover');
+        Route::post('/usuarios/{usuario}/retroceder', [\App\Http\Controllers\UsuarioController::class, 'retroceder'])->name('usuarios.retroceder');
+        Route::post('/usuarios/promover-todos', [\App\Http\Controllers\UsuarioController::class, 'promoverTodos'])->name('usuarios.promover_todos');
+        Route::post('/usuarios/retroceder-todos', [\App\Http\Controllers\UsuarioController::class, 'retrocederTodos'])->name('usuarios.retroceder_todos');
         Route::put('/usuarios/{usuario}', [\App\Http\Controllers\UsuarioController::class, 'estudiantesUpdate'])->name('usuarios.update');
 
         // Recepción de Formato (Peticiones)

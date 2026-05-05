@@ -12,10 +12,20 @@ class UsuarioController extends Controller
     /**
      * Mostrar la lista de estudiantes para el coordinador.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $estudiantes = Usuario::where('rol', 'estudiante')->orderBy('semestre')->orderBy('nombre')->get();
-        return view('usuarios.index', compact('estudiantes'));
+        $allEstudiantes = Usuario::where('rol', 'estudiante')->get();
+        $semestresDisponibles = $allEstudiantes->pluck('semestre')->unique()->sort();
+
+        $query = Usuario::where('rol', 'estudiante');
+        
+        if ($request->filled('semestre')) {
+            $query->where('semestre', $request->semestre);
+        }
+
+        $estudiantes = $query->orderBy('semestre')->orderBy('nombre')->get();
+        
+        return view('usuarios.index', compact('estudiantes', 'allEstudiantes', 'semestresDisponibles'));
     }
 
     /**
@@ -40,6 +50,95 @@ class UsuarioController extends Controller
         ]);
 
         return back()->with('success', "¡{$usuario->nombre} ha sido promovido al " . $usuario->semestre . "° Semestre!");
+    }
+
+    /**
+     * Retroceder un estudiante al semestre anterior.
+     */
+    public function retroceder(Usuario $usuario)
+    {
+        if ($usuario->semestre <= 1) {
+            return back()->with('error', "El estudiante ya está en el 1° Semestre, no puede retroceder más.");
+        }
+
+        $usuario->update([
+            'semestre' => $usuario->semestre - 1,
+            'ultimo_cambio_semestre' => now(),
+        ]);
+
+        return back()->with('success', "¡{$usuario->nombre} ha retrocedido al " . $usuario->semestre . "° Semestre!");
+    }
+
+    /**
+     * Promover a todos los estudiantes listados al siguiente semestre.
+     */
+    public function promoverTodos(Request $request)
+    {
+        $query = Usuario::where('rol', 'estudiante');
+        
+        if ($request->filled('semestre')) {
+            $query->where('semestre', $request->semestre);
+        }
+
+        $estudiantes = $query->get();
+        
+        if ($estudiantes->isEmpty()) {
+            return back()->with('error', 'No hay estudiantes para promover en esta vista.');
+        }
+        
+        $count = 0;
+        foreach ($estudiantes as $estudiante) {
+            $estudiante->update([
+                'semestre' => $estudiante->semestre + 1,
+                'ultimo_cambio_semestre' => now(),
+            ]);
+            $count++;
+        }
+
+        $mensaje = $request->filled('semestre') 
+            ? "¡{$count} estudiantes del {$request->semestre}° Semestre han sido promovidos!"
+            : "¡{$count} estudiantes han sido promovidos al siguiente semestre!";
+
+        return back()->with('success', $mensaje);
+    }
+
+    /**
+     * Retroceder a todos los estudiantes listados al semestre anterior (revierte promover).
+     */
+    public function retrocederTodos(Request $request)
+    {
+        $query = Usuario::where('rol', 'estudiante');
+        
+        if ($request->filled('semestre')) {
+            $query->where('semestre', $request->semestre);
+        }
+
+        $estudiantes = $query->get();
+        
+        if ($estudiantes->isEmpty()) {
+            return back()->with('error', 'No hay estudiantes para retroceder en esta vista.');
+        }
+        
+        $count = 0;
+        foreach ($estudiantes as $estudiante) {
+            if ($estudiante->semestre > 1) {
+                $estudiante->update([
+                    'semestre' => $estudiante->semestre - 1,
+                    'ultimo_cambio_semestre' => now(),
+                ]);
+                $count++;
+            }
+        }
+
+        if ($count === 0) {
+            return back()->with('error', 'Ningún estudiante pudo ser retrocedido (ya están en 1° Semestre).');
+        }
+
+        $mensaje = $request->filled('semestre') 
+            ? "¡{$count} estudiantes del {$request->semestre}° Semestre han retrocedido un semestre!"
+            : "¡{$count} estudiantes han retrocedido un semestre!";
+
+        return back()->with('success', $mensaje);
     }
 
     /**
@@ -85,7 +184,7 @@ class UsuarioController extends Controller
      */
     public function docentesIndex()
     {
-        $docentes = Usuario::where('rol', 'docente')->orderBy('nombre')->get();
+        $docentes = Usuario::whereIn('rol', ['docente', 'admin'])->orderBy('rol')->orderBy('nombre')->get();
         return view('usuarios.docentes', compact('docentes'));
     }
 
@@ -94,7 +193,8 @@ class UsuarioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|unique:usuarios,cedula|max:10',
-            'asignatura' => 'required|string|max:255',
+            'asignatura' => 'nullable|string|max:255',
+            'rol' => 'required|in:docente,admin',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
         ]);
@@ -102,25 +202,26 @@ class UsuarioController extends Controller
         Usuario::create([
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
-            'asignatura' => $request->asignatura,
-            'password' => Hash::make($request->cedula), // Contraseña genérica (Cédula)
-            'rol' => 'docente',
+            'asignatura' => $request->asignatura ?? 'N/A',
+            'password' => Hash::make($request->cedula),
+            'rol' => $request->rol,
         ]);
 
-        return back()->with('success', 'Docente registrado exitosamente. La contraseña inicial es su número de cédula.');
+        return back()->with('success', 'Personal registrado exitosamente. La contraseña inicial es su número de cédula.');
     }
 
     public function docentesUpdate(Request $request, Usuario $usuario)
     {
-        if ($usuario->rol !== 'docente') {
+        if (!in_array($usuario->rol, ['docente', 'admin'])) {
             return back()->with('error', 'Acción no permitida.');
         }
 
         $request->validate([
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
-            'asignatura' => 'required|string|max:255',
+            'asignatura' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:4',
+            'rol' => 'required|in:docente,admin',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
         ]);
@@ -128,7 +229,8 @@ class UsuarioController extends Controller
         $dataToUpdate = [
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
-            'asignatura' => $request->asignatura,
+            'asignatura' => $request->asignatura ?? 'N/A',
+            'rol' => $request->rol,
         ];
 
         if ($request->filled('password')) {
@@ -139,13 +241,13 @@ class UsuarioController extends Controller
 
         $usuario->update($dataToUpdate);
 
-        return back()->with('success', 'Datos del docente actualizados correctamente.');
+        return back()->with('success', 'Datos del personal actualizados correctamente.');
     }
 
     public function docentesDestroy(Usuario $usuario)
     {
-        if ($usuario->rol !== 'docente') {
-            return back()->with('error', 'Solo se pueden eliminar cuentas de docentes desde esta sección.');
+        if (!in_array($usuario->rol, ['docente', 'admin'])) {
+            return back()->with('error', 'Solo se pueden eliminar cuentas de personal administrativo o docente.');
         }
 
         $usuario->delete();
