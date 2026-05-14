@@ -88,10 +88,13 @@ class PeticionController extends Controller
 
         $totalMinutos = 525600; // Un año de duración (efectivamente sin límite de tiempo)
         
-        $hora_ingreso = sprintf('%02d:%02d', $request->horas, $request->minutos);
+        $horaIngreso = str_pad((string) $request->horas, 2, '0', STR_PAD_LEFT)
+            . ':'
+            . str_pad((string) $request->minutos, 2, '0', STR_PAD_LEFT);
         // Podemos guardar la hora de ingreso en las observaciones o en un campo nuevo si existiera.
         // Por ahora lo incluiremos en las observaciones automáticamente.
-        $observaciones = "Hora de ingreso: {$hora_ingreso}. " . $request->observaciones;
+        $observaciones = "Hora de ingreso: {$horaIngreso}."
+            . ($request->filled('observaciones') ? ' ' . $request->observaciones : '');
 
         $herramientas = Herramienta::whereIn('id', $cart)->get();
 

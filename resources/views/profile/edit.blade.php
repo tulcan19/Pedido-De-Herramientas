@@ -234,24 +234,23 @@
                     @include('profile.partials.update-profile-information-form')
                 </div>
             </div>
-
-            {{-- Seguridad --}}
+            @if(Auth::user()->esAdmin())
+            {{-- Configuración de Semestres --}}
             <div class="prof-card">
                 <div class="prof-card-header">
                     <div class="prof-card-icon blue">
-                        <span class="material-symbols-outlined">lock</span>
+                        <span class="material-symbols-outlined">settings</span>
                     </div>
                     <div>
-                        <h3>Seguridad y Contraseña</h3>
-                        <p>Usa una contraseña larga y aleatoria para mantener tu cuenta segura.</p>
+                        <h3>Configuración del Sistema</h3>
+                        <p>Ajusta el número máximo de semestres permitidos.</p>
                     </div>
                 </div>
                 <div class="prof-card-body">
-                    @include('profile.partials.update-password-form')
+                    @include('profile.partials.update-semesters-form')
                 </div>
             </div>
-
-
+            @endif
 
         </div>
     </div>

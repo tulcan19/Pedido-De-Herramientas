@@ -176,7 +176,7 @@
                     <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
                         <span style="font-weight: 700;">Recibido por (Encargado de taller):</span>
                         <div style="flex: 1; border-bottom: 1.5px solid #16213e; padding-bottom: 2px;">
-                            <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()->nombre ?? 'Javier Tulcán' }}</span>
+                            <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()?->nombre ?? 'Javier Tulcán' }}</span>
                         </div>
                     </div>
 

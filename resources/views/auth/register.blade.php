@@ -48,7 +48,7 @@
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-corporate-gold transition-colors duration-300">school</span>
                     <select id="semestre" name="semestre" required class="block w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-10 py-4 text-white focus:border-corporate-gold/50 focus:ring-4 focus:ring-corporate-gold/20 transition-all duration-300 outline-none appearance-none cursor-pointer backdrop-blur-sm">
                         <option value="" disabled selected class="bg-[#23325b] text-gray-500">Seleccionar</option>
-                        @foreach(range(1, 6) as $i)
+                        @foreach(range(1, \App\Models\Setting::get('max_semestres', 6)) as $i)
                             <option value="{{ $i }}" {{ old('semestre') == $i ? 'selected' : '' }} class="bg-[#23325b] text-white">{{ $i }}° Semestre</option>
                         @endforeach
                     </select>

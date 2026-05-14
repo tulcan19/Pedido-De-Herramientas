@@ -137,7 +137,7 @@
                             <div style="flex:1;">
                                 <select name="semestre_materia" class="input-line w-full" required>
                                     <option value="" disabled {{ !old('semestre_materia') ? 'selected' : '' }}>Seleccione el semestre</option>
-                                    @foreach(range(1, 6) as $sem)
+                                    @foreach(range(1, \App\Models\Setting::get('max_semestres', 6)) as $sem)
                                         <option value="{{ $sem }}" {{ old('semestre_materia') == $sem ? 'selected' : '' }}>{{ $sem }}° Semestre</option>
                                     @endforeach
                                 </select>
@@ -228,7 +228,7 @@
                         <div style="display: flex; align-items: flex-end; gap: 10px; font-size: 0.85rem;">
                             <span style="font-weight: 700;">Entregado por (Encargado de taller):</span>
                             <div style="flex: 1; border-bottom: 1.5px solid #16213e; min-width: 200px; padding-bottom: 2px;">
-                                <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()->nombre ?? 'Javier Tulcán' }}</span>
+                                <span style="font-weight: 800; color: #16213e; font-style: italic;">{{ \App\Models\Usuario::where('rol', 'admin')->first()?->nombre ?? 'Javier Tulcán' }}</span>
                             </div>
                         </div>
 
@@ -271,8 +271,27 @@
             });
         }
 
+        // Reloj en tiempo real para Hora de Ingreso
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const display = document.getElementById('hora_ingreso_display');
+            if (display) {
+                display.value = `${h}:${m}`;
+                document.getElementById('hidden_horas').value = h;
+                document.getElementById('hidden_minutos').value = m;
+            }
+        }
+        setInterval(updateClock, 10000); // Actualizar cada 10 segundos
+
         function updateTeacherSignature(select) {
             const option = select.options[select.selectedIndex];
+            if (!option || option.value === "") {
+                document.getElementById('teacher-sig-name').innerText = "";
+                return;
+            }
+
             const name = option.text;
             const asignaturasRaw = option.getAttribute('data-asignatura') || "";
             const asignaturas = asignaturasRaw.split(',').map(s => s.trim()).filter(s => s !== "");
@@ -293,23 +312,32 @@
             if (asignaturas.length === 1) {
                 asignaturaSelect.selectedIndex = 1;
             }
-        }
 
-        // Reloj en tiempo real para Hora de Ingreso
-        function updateClock() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const display = document.getElementById('hora_ingreso_display');
-            if (display) {
-                display.value = `${h}:${m}`;
-                document.getElementById('hidden_horas').value = h;
-                document.getElementById('hidden_minutos').value = m;
+            // Seleccionar el valor previo de Laravel if exists (old value)
+            const oldAsignatura = @json(old('asignatura'));
+            if (oldAsignatura) {
+                for(let i=0; i<asignaturaSelect.options.length; i++) {
+                    if(asignaturaSelect.options[i].value === oldAsignatura) {
+                        asignaturaSelect.selectedIndex = i;
+                        break;
+                    }
+                }
             }
         }
-        setInterval(updateClock, 10000); // Actualizar cada 10 segundos
 
-        document.getElementById('peticion-form').addEventListener('submit', function() {
+        // Al cargar la página, si ya hay un docente seleccionado (ej. por old()), actualizar la firma
+        document.addEventListener('DOMContentLoaded', function() {
+            const docenteSelect = document.getElementById('docente_id');
+            if (docenteSelect && docenteSelect.value) {
+                updateTeacherSignature(docenteSelect);
+            }
+            updateClock();
+        });
+
+        document.getElementById('peticion-form').addEventListener('submit', function(e) {
+            if (!this.checkValidity()) {
+                return;
+            }
             let btn = document.getElementById('btn-submit');
             btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Procesando...';
             btn.style.pointerEvents = 'none';

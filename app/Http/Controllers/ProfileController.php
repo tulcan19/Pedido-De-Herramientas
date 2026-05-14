@@ -53,4 +53,19 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        if (!$request->user()->esAdmin()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'max_semestres' => ['required', 'integer', 'min:1', 'max:12'],
+        ]);
+
+        \App\Models\Setting::set('max_semestres', $request->max_semestres);
+
+        return Redirect::route('profile.edit')->with('status', 'settings-updated');
+    }
 }
