@@ -33,7 +33,7 @@
                 <!-- Branding Header -->
                 <div class="mb-12 lg:mb-auto flex justify-center lg:justify-start">
                     <a href="/" class="transition-transform hover:scale-105 inline-block">
-                        <x-application-logo class="w-auto h-14 sm:h-16 fill-current text-corporate-gold" />
+                        <x-application-logo class="w-auto h-14 sm:h-16 fill-current text-white/90" />
                     </a>
                 </div>
 
