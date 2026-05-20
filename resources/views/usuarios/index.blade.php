@@ -132,8 +132,9 @@
         .modal-overlay {
             position: fixed; inset: 0; z-index: 999;
             background: rgba(10,14,30,.72); backdrop-filter: blur(8px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
             opacity: 0; pointer-events: none;
             transition: opacity .3s ease;
         }
@@ -143,7 +144,8 @@
             box-shadow: 0 40px 100px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.05);
             transform: translateY(28px) scale(.96);
             transition: transform .35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .3s ease;
-            overflow: hidden; max-height: 92vh; display: flex; flex-direction: column;
+            overflow: hidden; display: flex; flex-direction: column;
+            margin: auto;
         }
         .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
 
@@ -177,8 +179,10 @@
 
         /* Body */
         .modal-body {
-            padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem;
-            overflow-y: auto; flex: 1;
+            padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: .85rem;
+            overflow-y: auto;
+            flex: 1;
+            max-height: calc(100vh - 280px);
         }
         .modal-section-title {
             font-size: .68rem; font-weight: 700; color: #9ca3af;
