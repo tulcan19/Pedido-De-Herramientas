@@ -418,7 +418,7 @@
                                                 </button>
                                             </form>
 
-                                                @if ($estudiante->semestre < 4)
+                                                @if ($estudiante->semestre < $maxSemestres)
                                                     <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
                                                         @csrf
                                                         <button type="submit"
@@ -502,7 +502,7 @@
                                 Semestre
                             </label>
                             <input type="number" name="semestre" id="edit_semestre" class="field-input"
-                                   min="1" max="4" placeholder="Ej. 4" required>
+                                   min="1" max="{{ $maxSemestres }}" placeholder="Ej. {{ $maxSemestres }}" required>
                         </div>
                     </div>
 

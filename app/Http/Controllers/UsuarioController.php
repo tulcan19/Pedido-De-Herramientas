@@ -24,8 +24,8 @@ class UsuarioController extends Controller
         }
 
         $estudiantes = $query->orderBy('semestre')->orderBy('nombre')->get();
-        
-        return view('usuarios.index', compact('estudiantes', 'allEstudiantes', 'semestresDisponibles'));
+        $maxSemestres = \App\Models\Setting::get('max_semestres', 6);
+        return view('usuarios.index', compact('estudiantes', 'allEstudiantes', 'semestresDisponibles', 'maxSemestres'));
     }
 
     /**
@@ -43,8 +43,9 @@ class UsuarioController extends Controller
         }
         */
 
-        if ($usuario->semestre >= 4) {
-            return back()->with('error', "No se puede promover a {$usuario->nombre}: El límite es de 4 semestres.");
+        $maxSemestres = \App\Models\Setting::get('max_semestres', 6);
+        if ($usuario->semestre >= $maxSemestres) {
+            return back()->with('error', "No se puede promover a {$usuario->nombre}: El límite es de {$maxSemestres} semestres.");
         }
 
 
@@ -90,9 +91,10 @@ class UsuarioController extends Controller
             return back()->with('error', 'No hay estudiantes para promover en esta vista.');
         }
         
+        $maxSemestres = \App\Models\Setting::get('max_semestres', 6);
         $count = 0;
         foreach ($estudiantes as $estudiante) {
-            if ($estudiante->semestre < 4) {
+            if ($estudiante->semestre < $maxSemestres) {
                 $estudiante->update([
                     'semestre' => $estudiante->semestre + 1,
                     'ultimo_cambio_semestre' => now(),
@@ -156,11 +158,12 @@ class UsuarioController extends Controller
             return back()->with('error', 'Acción no permitida.');
         }
 
+        $maxSemestres = \App\Models\Setting::get('max_semestres', 6);
         $request->validate([
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
             'email' => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
-            'semestre' => 'required|integer|min:1|max:4',
+            'semestre' => 'required|integer|min:1|max:' . $maxSemestres,
             'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
