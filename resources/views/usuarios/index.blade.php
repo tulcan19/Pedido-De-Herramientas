@@ -131,66 +131,126 @@
         /* ── MODAL PREMIUM ── */
         .modal-overlay {
             position: fixed; inset: 0; z-index: 999;
-            background: rgba(15,20,40,.6); backdrop-filter: blur(6px);
+            background: rgba(10,14,30,.72); backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
             opacity: 0; pointer-events: none;
-            transition: opacity .25s ease;
+            transition: opacity .3s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-box {
-            background: #fff; border-radius: 24px; width: 100%; max-width: 480px;
-            box-shadow: 0 30px 80px rgba(0,0,0,.25);
-            transform: translateY(20px) scale(.97);
-            transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow: hidden;
+            background: #fff; border-radius: 28px; width: 100%; max-width: 520px;
+            box-shadow: 0 40px 100px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.05);
+            transform: translateY(28px) scale(.96);
+            transition: transform .35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .3s ease;
+            overflow: hidden; max-height: 92vh; display: flex; flex-direction: column;
         }
         .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+
+        /* Header */
         .modal-top {
-            background: linear-gradient(135deg, #16213e, #23325b);
-            padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1rem;
+            background: linear-gradient(135deg, #0f1629 0%, #16213e 50%, #1e2d52 100%);
+            padding: 1.6rem 1.75rem;
+            display: flex; align-items: center; gap: .9rem;
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(204,167,91,.15);
         }
-        .modal-icon { width: 44px; height: 44px; background: rgba(204,167,91,.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
-        .modal-icon .material-symbols-outlined { color: #cca75b; font-size: 22px; }
-        .modal-top h3 { color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0; }
-        .modal-top p { color: #a0b0cc; font-size: .8rem; margin: 0; }
+        .modal-icon {
+            width: 48px; height: 48px; flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(204,167,91,.25), rgba(204,167,91,.1));
+            border: 1px solid rgba(204,167,91,.3);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-icon .material-symbols-outlined { color: #cca75b; font-size: 24px; }
+        .modal-top-text { flex: 1; min-width: 0; }
+        .modal-top h3 { color: #fff; font-size: 1.1rem; font-weight: 800; margin: 0; letter-spacing: -.01em; }
+        .modal-top p { color: #7a92b8; font-size: .78rem; margin: .2rem 0 0; }
         .modal-close {
-            margin-left: auto; background: rgba(255,255,255,.1); border: none;
-            width: 32px; height: 32px; border-radius: 8px; color: #fff;
+            flex-shrink: 0; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+            width: 34px; height: 34px; border-radius: 10px; color: #a0b0cc;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background .15s;
+            transition: background .2s, color .2s;
         }
-        .modal-close:hover { background: rgba(255,255,255,.2); }
+        .modal-close:hover { background: rgba(255,255,255,.16); color: #fff; }
         .modal-close .material-symbols-outlined { font-size: 18px; }
 
-        .modal-body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.1rem; }
-        .modal-footer { padding: 1rem 2rem 1.75rem; display: flex; gap: .75rem; justify-content: flex-end; }
-        .btn-cancel {
-            background: #f3f4f6; color: #6b7280; border: none; padding: .7rem 1.4rem;
-            border-radius: 10px; font-family: 'Outfit', sans-serif; font-weight: 700;
-            font-size: .85rem; cursor: pointer; transition: background .15s;
+        /* Body */
+        .modal-body {
+            padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem;
+            overflow-y: auto; flex: 1;
         }
-        .btn-cancel:hover { background: #e5e7eb; }
+        .modal-section-title {
+            font-size: .68rem; font-weight: 700; color: #9ca3af;
+            text-transform: uppercase; letter-spacing: .1em;
+            display: flex; align-items: center; gap: .4rem;
+            padding-bottom: .5rem; border-bottom: 1px solid #f1f5f9;
+            margin-bottom: .25rem;
+        }
+        .modal-section-title .material-symbols-outlined { font-size: 14px; color: #cca75b; }
+        .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+        @media (max-width: 480px) { .modal-row { grid-template-columns: 1fr; } }
+
+        /* Fields */
+        .field-group { display: flex; flex-direction: column; gap: .35rem; }
+        .field-label {
+            font-size: .72rem; font-weight: 700; color: #374151;
+            text-transform: uppercase; letter-spacing: .06em;
+            display: flex; align-items: center; gap: .3rem;
+        }
+        .field-label .material-symbols-outlined { font-size: 13px; color: #cca75b; }
+        .field-input {
+            border: 1.5px solid #e5e7eb; border-radius: 12px;
+            padding: .75rem 1rem; font-family: 'Outfit', sans-serif; font-size: .9rem;
+            color: #111827; background: #fafafa; transition: border-color .2s, box-shadow .2s, background .2s;
+            outline: none; width: 100%;
+        }
+        .field-input:focus {
+            border-color: #cca75b; box-shadow: 0 0 0 3px rgba(204,167,91,.15);
+            background: #fff;
+        }
+        .field-input::placeholder { color: #c4cdd9; }
+        .field-hint { font-size: .71rem; color: #9ca3af; line-height: 1.4; margin-top: .15rem; }
+        .field-hint.warning { color: #d97706; }
+
+        /* Password toggle */
+        .input-wrapper { position: relative; }
+        .input-wrapper .field-input { padding-right: 2.8rem; }
+        .pass-toggle {
+            position: absolute; right: .8rem; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: #9ca3af;
+            display: flex; align-items: center; transition: color .15s;
+            padding: 0;
+        }
+        .pass-toggle:hover { color: #cca75b; }
+        .pass-toggle .material-symbols-outlined { font-size: 18px; }
+
+        /* Footer */
+        .modal-footer {
+            padding: 1rem 1.75rem 1.5rem;
+            display: flex; gap: .75rem; justify-content: flex-end;
+            border-top: 1px solid #f1f5f9; flex-shrink: 0;
+            background: #fafbfc;
+        }
+        .btn-cancel {
+            background: #f3f4f6; color: #6b7280; border: 1.5px solid #e5e7eb;
+            padding: .65rem 1.4rem; border-radius: 10px;
+            font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .85rem;
+            cursor: pointer; transition: background .15s, border-color .15s;
+        }
+        .btn-cancel:hover { background: #e5e7eb; border-color: #d1d5db; }
         .btn-save {
             display: inline-flex; align-items: center; gap: 7px;
             background: linear-gradient(135deg, #cca75b, #a07a2a);
-            color: #16213e; border: none; padding: .7rem 1.6rem;
+            color: #0f1629; border: none; padding: .65rem 1.6rem;
             border-radius: 10px; font-family: 'Outfit', sans-serif;
             font-weight: 800; font-size: .85rem; cursor: pointer;
             transition: transform .15s, box-shadow .15s;
-            box-shadow: 0 4px 14px rgba(204,167,91,.35);
+            box-shadow: 0 4px 16px rgba(204,167,91,.4);
         }
-        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(204,167,91,.4); }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(204,167,91,.5); }
+        .btn-save:active { transform: translateY(0); }
         .btn-save .material-symbols-outlined { font-size: 17px; }
-
-        .field-group { display: flex; flex-direction: column; gap: .4rem; }
-        .field-label { font-size: .75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
-        .field-input {
-            border: 1.5px solid #e5e7eb; border-radius: 12px;
-            padding: .7rem 1rem; font-family: 'Outfit', sans-serif; font-size: .9rem;
-            color: #16213e; background: #fff; transition: border-color .2s, box-shadow .2s;
-            outline: none;
-        }
-        .field-input:focus { border-color: #cca75b; box-shadow: 0 0 0 3px rgba(204,167,91,.12); }
     </style>
 
     <div class="est-root">
@@ -384,13 +444,16 @@
     {{-- MODAL EDICIÓN --}}
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
+            <!-- Header -->
             <div class="modal-top">
-                <div class="modal-icon"><span class="material-symbols-outlined">edit_note</span></div>
-                <div>
+                <div class="modal-icon">
+                    <span class="material-symbols-outlined">edit_note</span>
+                </div>
+                <div class="modal-top-text">
                     <h3>Editar Estudiante</h3>
                     <p>Actualiza la información del estudiante</p>
                 </div>
-                <button class="modal-close" onclick="closeModal()">
+                <button class="modal-close" onclick="closeModal()" title="Cerrar">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
@@ -399,27 +462,76 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <div class="field-group">
-                        <label class="field-label">Nombre Completo</label>
-                        <input type="text" name="nombre" id="edit_nombre" class="field-input" required>
+
+                    <!-- Sección: Datos personales -->
+                    <div class="modal-section-title">
+                        <span class="material-symbols-outlined">person</span>
+                        Datos personales
+                    </div>
+                    <div class="modal-row">
+                        <div class="field-group" style="grid-column: 1 / -1;">
+                            <label class="field-label">
+                                <span class="material-symbols-outlined">badge</span>
+                                Nombre Completo
+                            </label>
+                            <input type="text" name="nombre" id="edit_nombre" class="field-input"
+                                   placeholder="Nombre y apellido completo" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">
+                                <span class="material-symbols-outlined">id_card</span>
+                                Cédula
+                            </label>
+                            <input type="text" name="cedula" id="edit_cedula" class="field-input"
+                                   placeholder="10 dígitos" maxlength="10" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">
+                                <span class="material-symbols-outlined">school</span>
+                                Semestre
+                            </label>
+                            <input type="number" name="semestre" id="edit_semestre" class="field-input"
+                                   min="1" placeholder="Ej. 4" required>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Contacto -->
+                    <div class="modal-section-title">
+                        <span class="material-symbols-outlined">mail</span>
+                        Contacto
                     </div>
                     <div class="field-group">
-                        <label class="field-label">Cédula</label>
-                        <input type="text" name="cedula" id="edit_cedula" class="field-input" maxlength="10" required>
+                        <label class="field-label">
+                            <span class="material-symbols-outlined">alternate_email</span>
+                            Correo Electrónico
+                        </label>
+                        <input type="email" name="email" id="edit_email" class="field-input"
+                               placeholder="estudiante@ejemplo.com">
+                        <span class="field-hint">Utilizado para restablecer la contraseña del estudiante.</span>
+                    </div>
+
+                    <!-- Sección: Seguridad -->
+                    <div class="modal-section-title">
+                        <span class="material-symbols-outlined">lock</span>
+                        Seguridad
                     </div>
                     <div class="field-group">
-                        <label class="field-label">Correo Electrónico (Para restablecer contraseña)</label>
-                        <input type="email" name="email" id="edit_email" class="field-input" placeholder="estudiante@ejemplo.com">
+                        <label class="field-label">
+                            <span class="material-symbols-outlined">key</span>
+                            Nueva Contraseña <span style="font-weight:500;color:#9ca3af;text-transform:none;letter-spacing:0;">(opcional)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" name="password" id="edit_password" class="field-input"
+                                   placeholder="Dejar en blanco para mantener la actual">
+                            <button type="button" class="pass-toggle" onclick="togglePass('edit_password', this)" tabindex="-1">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                        <span class="field-hint warning">
+                            <span style="font-size:12px;">⚠</span> Si dejas este campo vacío, se conservará la contraseña actual.
+                        </span>
                     </div>
-                    <div class="field-group">
-                        <label class="field-label">Semestre</label>
-                        <input type="number" name="semestre" id="edit_semestre" class="field-input" min="1" required>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">Nueva Contraseña (Opcional)</label>
-                        <input type="password" name="password" id="edit_password" class="field-input" placeholder="Dejar en blanco para no cambiarla">
-                        <span style="font-size:.72rem; color:#9ca3af;">Si dejas este campo vacío, se mantendrá la contraseña actual.</span>
-                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -439,13 +551,27 @@
             document.getElementById('edit_cedula').value = cedula;
             document.getElementById('edit_semestre').value = semestre;
             document.getElementById('edit_email').value = email || '';
+            document.getElementById('edit_password').value = '';
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('edit_nombre').focus(), 150);
         }
 
         function closeModal() {
             document.getElementById('editModal').classList.remove('active');
             document.body.style.overflow = 'auto';
+        }
+
+        function togglePass(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const icon  = btn.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
         }
 
         document.getElementById('editModal').addEventListener('click', function(e) {
