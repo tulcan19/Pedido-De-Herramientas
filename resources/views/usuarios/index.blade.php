@@ -418,15 +418,22 @@
                                                 </button>
                                             </form>
 
-                                                <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        onclick="return confirm('¿Promover a {{ $estudiante->nombre }} al semestre {{ $estudiante->semestre + 1 }}?')"
-                                                        class="btn-promote">
-                                                        <span class="material-symbols-outlined">trending_up</span>
-                                                        Promover
-                                                    </button>
-                                                </form>
+                                                @if ($estudiante->semestre < 4)
+                                                    <form action="{{ route('usuarios.promover', $estudiante) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            onclick="return confirm('¿Promover a {{ $estudiante->nombre }} al semestre {{ $estudiante->semestre + 1 }}?')"
+                                                            class="btn-promote">
+                                                            <span class="material-symbols-outlined">trending_up</span>
+                                                            Promover
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span style="font-size:.7rem; color:#9ca3af; padding:.45rem 1rem; border-radius:10px; background:rgba(0,0,0,.03); font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                                                        <span class="material-symbols-outlined" style="font-size:15px;">done_all</span>
+                                                        Límite
+                                                    </span>
+                                                @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -495,7 +502,7 @@
                                 Semestre
                             </label>
                             <input type="number" name="semestre" id="edit_semestre" class="field-input"
-                                   min="1" placeholder="Ej. 4" required>
+                                   min="1" max="4" placeholder="Ej. 4" required>
                         </div>
                     </div>
 

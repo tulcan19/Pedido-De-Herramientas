@@ -43,6 +43,10 @@ class UsuarioController extends Controller
         }
         */
 
+        if ($usuario->semestre >= 4) {
+            return back()->with('error', "No se puede promover a {$usuario->nombre}: El límite es de 4 semestres.");
+        }
+
 
         $usuario->update([
             'semestre' => $usuario->semestre + 1,
@@ -88,11 +92,13 @@ class UsuarioController extends Controller
         
         $count = 0;
         foreach ($estudiantes as $estudiante) {
-            $estudiante->update([
-                'semestre' => $estudiante->semestre + 1,
-                'ultimo_cambio_semestre' => now(),
-            ]);
-            $count++;
+            if ($estudiante->semestre < 4) {
+                $estudiante->update([
+                    'semestre' => $estudiante->semestre + 1,
+                    'ultimo_cambio_semestre' => now(),
+                ]);
+                $count++;
+            }
         }
 
         $mensaje = $request->filled('semestre') 
@@ -154,7 +160,7 @@ class UsuarioController extends Controller
             'nombre' => 'required|string|max:255',
             'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
             'email' => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
-            'semestre' => 'required|integer|min:1',
+            'semestre' => 'required|integer|min:1|max:4',
             'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
