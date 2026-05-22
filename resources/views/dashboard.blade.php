@@ -342,7 +342,7 @@
                     ISTPET Traversari · Taller Mecánico
                 </div>
                 <h1 class="hero-title">
-                    Bienvenido, <span>{{ Str::words(Auth::user()->nombre, 1, '') }}</span> 
+                    Bienvenido, <span>{{ Auth::user()->nombre }}</span> 
                 </h1>
                 <p class="hero-sub">
                     {{ Auth::user()->esAdmin()
