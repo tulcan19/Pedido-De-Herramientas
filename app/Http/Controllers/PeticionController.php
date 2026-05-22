@@ -137,6 +137,10 @@ class PeticionController extends Controller
 
     public function entrega(Peticion $peticion)
     {
+        if (Auth::user()->rol !== 'docente' && Auth::user()->rol !== 'admin') {
+            abort(403, 'No autorizado.');
+        }
+
         if ($peticion->estado !== 'enviado') {
             return redirect()->route('dashboard')->with('error', 'Esta petición no está pendiente de entrega.');
         }
@@ -166,6 +170,10 @@ class PeticionController extends Controller
 
     public function procesarEntrega(Request $request, Peticion $peticion)
     {
+        if (Auth::user()->rol !== 'docente' && Auth::user()->rol !== 'admin') {
+            abort(403, 'No autorizado.');
+        }
+
         if ($peticion->estado !== 'enviado') {
              return redirect()->route('dashboard')->with('error', 'Esta petición no está pendiente de entrega.');
         }

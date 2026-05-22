@@ -438,7 +438,7 @@
                                                 Aprobar Petición
                                             </button>
                                         </form>
-                                    @elseif(Auth::user()->esAdmin())
+                                    @elseif(Auth::user()->esAdmin() || Auth::user()->esDocente())
                                         @if($peticion->docente_aprueba)
                                             <a href="{{ route('peticiones.entrega', $peticion) }}" class="block w-full text-center text-[11px] uppercase tracking-wider font-bold py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-sm">
                                                 Procesar Entrega

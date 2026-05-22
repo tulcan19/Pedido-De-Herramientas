@@ -16,7 +16,7 @@ Route::get('/dashboard', function () {
         $prestamos = \App\Models\Prestamo::with('herramienta')->whereIn('estado', ['reservado', 'activo', 'atrasado'])->latest()->get();
         $prestamosTotales = \App\Models\Prestamo::count();
     } elseif ($user->esDocente()) {
-        $peticiones = $user->peticionesAsignadas()->with(['prestamos.herramienta', 'usuario'])->latest()->get();
+        $peticiones = $user->peticionesAsignadas()->with(['prestamos.herramienta', 'usuario'])->whereIn('estado', ['enviado'])->latest()->get();
         $prestamos = collect();
         foreach($peticiones as $peticion) {
             foreach($peticion->prestamos as $prestamo) {
@@ -54,10 +54,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/usuarios/retroceder-todos', [\App\Http\Controllers\UsuarioController::class, 'retrocederTodos'])->name('usuarios.retroceder_todos');
         Route::put('/usuarios/{usuario}', [\App\Http\Controllers\UsuarioController::class, 'estudiantesUpdate'])->name('usuarios.update');
 
-        // Recepción de Formato (Peticiones)
-        // Salida de Herramientas (Entregas)
-        Route::get('/peticion/{peticion}/entrega', [\App\Http\Controllers\PeticionController::class, 'entrega'])->name('peticiones.entrega');
-        Route::post('/peticion/{peticion}/procesar-entrega', [\App\Http\Controllers\PeticionController::class, 'procesarEntrega'])->name('peticiones.procesar-entrega');
+        // Salida de Herramientas (Entregas) movidas fuera del middleware admin
         Route::post('/herramientas/{herramienta}/status', [\App\Http\Controllers\HerramientaController::class, 'actualizarEstado'])->name('herramientas.status-update');
         Route::delete('/herramientas/historial/{historial}', [\App\Http\Controllers\HerramientaController::class, 'destroyHistory'])->name('herramientas.historial.destroy');
 
@@ -97,6 +94,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/peticion/crear', [\App\Http\Controllers\PeticionController::class, 'create'])->name('peticiones.create');
     Route::post('/peticion/store', [\App\Http\Controllers\PeticionController::class, 'store'])->name('peticiones.store');
     Route::post('/peticion/{peticion}/aprobar', [\App\Http\Controllers\PeticionController::class, 'aprobarDocente'])->name('peticiones.aprobar-docente');
+
+    // Recepción de Formato (Peticiones) - Salida de Herramientas (Entregas)
+    Route::get('/peticion/{peticion}/entrega', [\App\Http\Controllers\PeticionController::class, 'entrega'])->name('peticiones.entrega');
+    Route::post('/peticion/{peticion}/procesar-entrega', [\App\Http\Controllers\PeticionController::class, 'procesarEntrega'])->name('peticiones.procesar-entrega');
 });
 
 require __DIR__.'/auth.php';
