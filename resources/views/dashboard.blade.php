@@ -473,10 +473,18 @@
             <div>
                 <div class="section-header">
                     <div class="section-title">
-                        <span class="material-symbols-outlined">inventory_2</span>
-                        {{ Auth::user()->esAdmin() ? 'Herramientas Prestadas (General)' : (Auth::user()->esDocente() ? 'Herramientas en uso por tus estudiantes' : 'Mis Herramientas Activas') }}
+                        <span class="material-symbols-outlined">{{ request()->query('history') ? 'history' : 'inventory_2' }}</span>
+                        @if(request()->query('history'))
+                            {{ Auth::user()->esAdmin() ? 'Historial Completo de Préstamos' : (Auth::user()->esDocente() ? 'Historial Completo de tus estudiantes' : 'Mi Historial Completo') }}
+                        @else
+                            {{ Auth::user()->esAdmin() ? 'Herramientas Prestadas (General)' : (Auth::user()->esDocente() ? 'Herramientas en uso por tus estudiantes' : 'Mis Herramientas Activas') }}
+                        @endif
                     </div>
-                    <a href="#" class="section-link">Ver historial completo →</a>
+                    @if(request()->query('history'))
+                        <a href="{{ route('dashboard') }}" class="section-link">← Ver solo herramientas activas</a>
+                    @else
+                        <a href="{{ route('dashboard', ['history' => 1]) }}" class="section-link">Ver historial completo →</a>
+                    @endif
                 </div>
 
                 <div class="tools-grid">

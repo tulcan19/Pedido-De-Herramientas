@@ -8,19 +8,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     $user = auth()->user();
+    $showHistory = $request->query('history');
     
     if ($user->esAdmin()) {
         $peticiones = \App\Models\Peticion::with(['prestamos.herramienta', 'usuario'])->whereIn('estado', ['enviado'])->latest()->get();
-        $prestamos = \App\Models\Prestamo::with('herramienta')->whereIn('estado', ['reservado', 'activo', 'atrasado'])->latest()->get();
+        $query = \App\Models\Prestamo::with('herramienta');
+        if (!$showHistory) {
+            $query->whereIn('estado', ['reservado', 'activo', 'atrasado']);
+        }
+        $prestamos = $query->latest()->get();
         $prestamosTotales = \App\Models\Prestamo::count();
     } elseif ($user->esDocente()) {
         $peticiones = $user->peticionesAsignadas()->with(['prestamos.herramienta', 'usuario'])->whereIn('estado', ['enviado'])->latest()->get();
         $prestamos = collect();
         foreach($peticiones as $peticion) {
             foreach($peticion->prestamos as $prestamo) {
-                if (in_array($prestamo->estado, ['reservado', 'activo', 'atrasado'])) {
+                if ($showHistory || in_array($prestamo->estado, ['reservado', 'activo', 'atrasado'])) {
                     $prestamos->push($prestamo);
                 }
             }
@@ -28,7 +33,11 @@ Route::get('/dashboard', function () {
         $prestamosTotales = $prestamos->count();
     } else {
         $peticiones = $user->peticiones()->with('prestamos.herramienta')->whereIn('estado', ['enviado'])->latest()->get();
-        $prestamos = $user->prestamos()->with('herramienta')->whereIn('estado', ['reservado', 'activo', 'atrasado'])->latest()->get();
+        $query = $user->prestamos()->with('herramienta');
+        if (!$showHistory) {
+            $query->whereIn('estado', ['reservado', 'activo', 'atrasado']);
+        }
+        $prestamos = $query->latest()->get();
         $prestamosTotales = $user->prestamos()->count();
     }
     
