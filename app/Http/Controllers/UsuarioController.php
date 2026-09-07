@@ -201,11 +201,12 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'cedula' => 'required|string|unique:usuarios,cedula|max:10',
+            'cedula' => 'required|regex:/^[0-9]+$/|unique:usuarios,cedula|max:10',
             'asignatura' => 'nullable|string|max:255',
             'rol' => 'required|in:docente,admin',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
+            'cedula.regex' => 'La cédula solo debe contener números.',
         ]);
 
         Usuario::create([
@@ -227,12 +228,13 @@ class UsuarioController extends Controller
 
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'cedula' => 'required|string|max:10|unique:usuarios,cedula,' . $usuario->id,
+            'cedula' => 'required|regex:/^[0-9]+$/|max:10|unique:usuarios,cedula,' . $usuario->id,
             'asignatura' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:4',
             'rol' => 'required|in:docente,admin',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
+            'cedula.regex' => 'La cédula solo debe contener números.',
         ]);
 
         $dataToUpdate = [
