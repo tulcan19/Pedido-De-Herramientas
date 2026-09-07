@@ -308,7 +308,7 @@
                         </div>
                         <div class="field-group">
                             <label class="field-label">Cédula (Usuario)</label>
-                            <input type="text" name="cedula" class="field-input" placeholder="10 dígitos" value="{{ old('cedula') }}" maxlength="10" required>
+                            <input type="text" name="cedula" class="field-input" placeholder="10 dígitos" value="{{ old('cedula') }}" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('cedula') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                         <div class="field-group">
@@ -457,7 +457,7 @@
                                 Cédula
                             </label>
                             <input type="text" name="cedula" id="edit_cedula" class="field-input"
-                                   placeholder="10 dígitos" maxlength="10" required>
+                                   placeholder="10 dígitos" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <div class="field-group">
                             <label class="field-label">
