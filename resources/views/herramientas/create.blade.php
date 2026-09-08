@@ -42,16 +42,15 @@
 
                             <!-- Código QR -->
                             <div>
-                                <x-input-label for="codigo_qr" :value="__('Código QR / Identificador (Opcional)')" />
+                                <x-input-label for="codigo_qr" :value="__('Código QR / Identificador')" />
                                 <div class="flex gap-2 mt-1">
-                                    <x-text-input id="codigo_qr" name="codigo_qr" type="text" class="block w-full border-corporate-blue/20" :value="old('codigo_qr')" placeholder="HTA-XXXXXX" />
+                                    <x-text-input id="codigo_qr" name="codigo_qr" type="text" class="block w-full border-corporate-blue/20" :value="old('codigo_qr')" placeholder="HTA-XXXXXX" required />
                                     <button type="button" 
                                             onclick="document.getElementById('codigo_qr').value = '{{ $nextCode }}'; this.innerText = '✅'; this.classList.add('bg-green-600');" 
                                             class="px-4 py-2 bg-corporate-blue text-white text-xs rounded-lg hover:bg-gray-700 transition-all font-bold">
                                         Generar
                                     </button>
                                 </div>
-                                <p class="mt-1 text-[10px] text-gray-400 italic">Si se deja vacío, el servidor lo generará al guardar.</p>
                                 <x-input-error class="mt-2" :messages="$errors->get('codigo_qr')" />
                             </div>
 

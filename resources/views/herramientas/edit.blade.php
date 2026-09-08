@@ -354,7 +354,7 @@
                             <div class="flex-1 w-full">
                                 <div class="qr-input-group">
                                     <input id="codigo_qr" name="codigo_qr" type="text" class="field-input mono"
-                                           value="{{ old('codigo_qr', $herramienta->codigo_qr) }}">
+                                           value="{{ old('codigo_qr', $herramienta->codigo_qr) }}" required>
                                     <button type="button" id="btn-regenerar" class="btn-regenerar"
                                         onclick="if(confirm('¿ESTÁS SEGURO? Si regeneras el código, tendrás que imprimir y cambiar la etiqueta física.')){
                                             document.getElementById('codigo_qr').value = '{{ $nextCode }}';
@@ -365,7 +365,6 @@
                                         Regenerar
                                     </button>
                                 </div>
-                                <div class="field-hint">Al guardar con el campo vacío, se asignará un nuevo código único automáticamente.</div>
                                 @error('codigo_qr')<div class="field-error">{{ $message }}</div>@enderror
 
                                 {{-- Historial QR --}}

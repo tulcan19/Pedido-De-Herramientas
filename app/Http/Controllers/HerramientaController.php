@@ -40,11 +40,15 @@ class HerramientaController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'codigo_qr' => 'nullable|string|unique:herramientas,codigo_qr',
+            'codigo_qr' => 'required|string|starts_with:HTA-|unique:herramientas,codigo_qr',
             'estado' => 'required|in:disponible,prestado,mantenimiento,perdido',
             'ubicacion' => 'nullable|string|max:255',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'accesorios' => 'nullable|array',
+        ], [
+            'codigo_qr.starts_with' => 'El código/identificador debe comenzar obligatoriamente con HTA-',
+            'codigo_qr.unique' => 'CONFLICTO: Este código ya está en uso. Revisa la herramienta: ' . 
+                (\App\Models\Herramienta::where('codigo_qr', $request->codigo_qr)->first()->nombre ?? 'Desconocida'),
         ]);
 
         $validated['es_alto_valor'] = $request->has('es_alto_valor');
@@ -108,12 +112,13 @@ class HerramientaController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'codigo_qr' => 'nullable|string|unique:herramientas,codigo_qr,' . $herramienta->id,
+            'codigo_qr' => 'required|string|starts_with:HTA-|unique:herramientas,codigo_qr,' . $herramienta->id,
             'estado' => 'required|in:disponible,prestado,mantenimiento,perdido',
             'ubicacion' => 'nullable|string|max:255',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'accesorios' => 'nullable|array',
         ], [
+            'codigo_qr.starts_with' => 'El código/identificador debe comenzar obligatoriamente con HTA-',
             'codigo_qr.unique' => 'CONFLICTO: Este código ya está en uso. Revisa la herramienta: ' . 
                 (\App\Models\Herramienta::where('codigo_qr', $request->codigo_qr)->first()->nombre ?? 'Desconocida'),
         ]);
