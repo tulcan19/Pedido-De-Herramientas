@@ -353,11 +353,20 @@
                         <div class="flex flex-col md:flex-row gap-6 items-start">
                             <div class="flex-1 w-full">
                                 <div class="qr-input-group">
-                                    <input id="codigo_qr" name="codigo_qr" type="text" class="field-input mono"
-                                           value="{{ old('codigo_qr', $herramienta->codigo_qr) }}" required>
+                                    <div class="flex w-full rounded-xl overflow-hidden border-[1.5px] border-gray-200 focus-within:border-[#cca75b] focus-within:ring-[3px] focus-within:ring-[#cca75b]/15 transition-all">
+                                        <span class="inline-flex items-center px-3 text-sm text-gray-600 bg-gray-100 font-bold border-r border-gray-200">
+                                            HTA-
+                                        </span>
+                                        <input id="codigo_qr_input" type="text" class="flex-1 outline-none px-3 py-2 text-[0.9rem] text-[#16213e] font-mono w-full"
+                                               value="{{ str_replace('HTA-', '', old('codigo_qr', $herramienta->codigo_qr)) }}" required
+                                               oninput="document.getElementById('codigo_qr').value = 'HTA-' + this.value;">
+                                        <input type="hidden" id="codigo_qr" name="codigo_qr" value="{{ old('codigo_qr', $herramienta->codigo_qr) }}">
+                                    </div>
                                     <button type="button" id="btn-regenerar" class="btn-regenerar"
                                         onclick="if(confirm('¿ESTÁS SEGURO? Si regeneras el código, tendrás que imprimir y cambiar la etiqueta física.')){
-                                            document.getElementById('codigo_qr').value = '{{ $nextCode }}';
+                                            let nextNum = '{{ str_replace('HTA-', '', $nextCode) }}';
+                                            document.getElementById('codigo_qr_input').value = nextNum;
+                                            document.getElementById('codigo_qr').value = 'HTA-' + nextNum;
                                             this.innerHTML = '<span class=\'material-symbols-outlined\'>check_circle</span> ¡Generado!';
                                             this.style.background = '#d1fae5'; this.style.color='#065f46'; this.style.borderColor='#10b981';
                                         }">
@@ -383,6 +392,7 @@
                                             <div class="flex items-center gap-2">
                                                 <button type="button" class="btn-restore"
                                                     onclick="if(confirm('¿Restaurar el código «{{ $historial->codigo_qr }}»?')){
+                                                        document.getElementById('codigo_qr_input').value = '{{ str_replace('HTA-', '', $historial->codigo_qr) }}';
                                                         document.getElementById('codigo_qr').value = '{{ $historial->codigo_qr }}';
                                                     }">
                                                     Restaurar

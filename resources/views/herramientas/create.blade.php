@@ -44,9 +44,16 @@
                             <div>
                                 <x-input-label for="codigo_qr" :value="__('Código QR / Identificador')" />
                                 <div class="flex gap-2 mt-1">
-                                    <x-text-input id="codigo_qr" name="codigo_qr" type="text" class="block w-full border-corporate-blue/20" :value="old('codigo_qr', 'HTA-')" placeholder="HTA-XXXXXX" required />
+                                    <div class="flex w-full">
+                                        <span class="inline-flex items-center px-3 text-sm text-gray-600 bg-gray-100 border border-r-0 border-corporate-blue/20 rounded-l-md font-bold">
+                                            HTA-
+                                        </span>
+                                        <x-text-input id="codigo_qr_input" type="text" class="block w-full border-corporate-blue/20 rounded-l-none" :value="str_replace('HTA-', '', old('codigo_qr', ''))" placeholder="001" required 
+                                            oninput="document.getElementById('codigo_qr').value = 'HTA-' + this.value;" />
+                                        <input type="hidden" name="codigo_qr" id="codigo_qr" value="{{ old('codigo_qr', 'HTA-') }}">
+                                    </div>
                                     <button type="button" 
-                                            onclick="document.getElementById('codigo_qr').value = '{{ $nextCode }}'; this.innerText = '✅'; this.classList.add('bg-green-600');" 
+                                            onclick="let nextNum = '{{ str_replace('HTA-', '', $nextCode) }}'; document.getElementById('codigo_qr_input').value = nextNum; document.getElementById('codigo_qr').value = 'HTA-' + nextNum; this.innerText = '✅'; this.classList.add('bg-green-600');" 
                                             class="px-4 py-2 bg-corporate-blue text-white text-xs rounded-lg hover:bg-gray-700 transition-all font-bold">
                                         Generar
                                     </button>
