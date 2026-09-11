@@ -149,7 +149,7 @@
                             <div class="flex items-end gap-1" style="flex:1;">
                                 <input type="text" id="hora_ingreso_display" class="input-line bg-gray-100 font-bold text-center cursor-not-allowed" style="width:100px; color:#23325b;" value="{{ now()->format('H:i') }}" readonly>
                                 <input type="hidden" name="horas" id="hidden_horas" value="{{ now()->format('H') }}">
-                                <input type="hidden" name="minutos" id="hidden_minutos" value="{{ now()->format('i') }}">
+                                <input type="hidden" name="minutos" id="hidden_minutos" value="{{ now()->minute }}">
                                 <span class="text-[10px] text-green-600 font-bold uppercase tracking-tighter flex items-center gap-1 ml-2 mb-1">
                                 </span>
                             </div>
@@ -275,12 +275,13 @@
         function updateClock() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
+            const minutes = now.getMinutes();
+            const m = String(minutes).padStart(2, '0');
             const display = document.getElementById('hora_ingreso_display');
             if (display) {
                 display.value = `${h}:${m}`;
                 document.getElementById('hidden_horas').value = h;
-                document.getElementById('hidden_minutos').value = m;
+                document.getElementById('hidden_minutos').value = minutes;
             }
         }
         setInterval(updateClock, 10000); // Actualizar cada 10 segundos

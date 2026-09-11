@@ -76,6 +76,11 @@ class PeticionController extends Controller
             return redirect()->route('herramientas.index')->with('error', 'El carrito está vacío.');
         }
 
+        $minutos = $request->input('minutos');
+        if (is_string($minutos) && ctype_digit($minutos)) {
+            $request->merge(['minutos' => (int) $minutos]);
+        }
+
         $request->validate([
             'docente_id' => 'required|exists:usuarios,id',
             'asignatura' => 'required|string|max:255',
