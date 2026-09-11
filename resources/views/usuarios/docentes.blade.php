@@ -322,6 +322,8 @@
                 </div>
                 <form action="{{ route('docentes.store') }}" method="POST">
                     @csrf
+
+                    {{-- Fila 1: Nombre | Cédula | Asignaturas --}}
                     <div class="form-grid">
                         <div class="field-group">
                             <label class="field-label">Nombre Completo</label>
@@ -338,6 +340,48 @@
                             <input type="text" name="asignatura" class="field-input" placeholder="Ej. Autotrónica, Sistemas, Dibujo" value="{{ old('asignatura') }}" required>
                             @error('asignatura') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
+                    </div>
+
+                    {{-- Fila 2: Correo | Contraseña + Generar --}}
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1.25rem; padding: 0 2rem 1rem;">
+                        {{-- Correo --}}
+                        <div class="field-group">
+                            <label class="field-label">Correo Electrónico</label>
+                            <input type="email" name="email" class="field-input"
+                                   placeholder="Ej. juan.perez@istpet.edu.ec"
+                                   value="{{ old('email') }}">
+                            <span class="pw-hint">✉ Se usará para recuperar la contraseña.</span>
+                            @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        {{-- Contraseña --}}
+                        <div class="field-group">
+                            <label class="field-label">Contraseña</label>
+                            <div class="pw-wrapper">
+                                <input type="password" name="password" id="create_password" class="field-input"
+                                       placeholder="Dejar vacío para usar la cédula">
+                                <button type="button" class="pw-eye" onclick="toggleCreatePass(this)" tabindex="-1">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </button>
+                            </div>
+                            <span class="pw-hint">Si se deja vacío, la cédula será la contraseña inicial.</span>
+                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        {{-- Generar contraseña --}}
+                        <div class="field-group">
+                            <label class="field-label">Generar Contraseña</label>
+                            <div style="display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; padding-top:.15rem;">
+                                <button type="button" class="btn-gen" onclick="generarPassword()">
+                                    <span class="material-symbols-outlined">casino</span>
+                                    Generar aleatoria
+                                </button>
+                                <span id="pw_preview" style="font-family:monospace; font-size:.82rem; color:#374151; background:#f1f5f9; padding:4px 10px; border-radius:8px; display:none;"></span>
+                            </div>
+                            <span class="pw-hint">Genera una contraseña segura de 10 caracteres.</span>
+                        </div>
+                    </div>
+
+                    {{-- Fila 3: Rol del Usuario --}}
+                    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:1.25rem; padding: 0 2rem 1.5rem;">
                         <div class="field-group">
                             <label class="field-label">Rol del Usuario</label>
                             <select name="rol" class="field-input" required style="cursor:pointer;">
@@ -348,47 +392,6 @@
                         </div>
                     </div>
 
-                    {{-- Fila de correo --}}
-                    <div class="form-grid-pw">
-                        <div class="field-group" style="grid-column: 1 / -1;">
-                            <label class="field-label">Correo Electrónico</label>
-                            <input type="email" name="email" class="field-input"
-                                   placeholder="Ej. juan.perez@istpet.edu.ec"
-                                   value="{{ old('email') }}">
-                            <span class="pw-hint">
-                                <span style="font-size:13px; vertical-align:middle;">✉</span>
-                                Opcional — se usará para recuperar la contraseña en caso de pérdida.
-                            </span>
-                            @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    {{-- Fila de contraseña --}}
-                    <div class="form-grid-pw">
-                        <div class="field-group">
-                            <label class="field-label">Contraseña</label>
-                            <div class="pw-wrapper">
-                                <input type="password" name="password" id="create_password" class="field-input"
-                                       placeholder="Dejar vacío para usar la cédula">
-                                <button type="button" class="pw-eye" onclick="toggleCreatePass(this)" tabindex="-1">
-                                    <span class="material-symbols-outlined">visibility</span>
-                                </button>
-                            </div>
-                            <span class="pw-hint">Opcional — si se deja vacío, la cédula se usará como contraseña inicial.</span>
-                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Generar Contraseña</label>
-                            <div style="display:flex; gap:.6rem; align-items:center; flex-wrap:wrap;">
-                                <button type="button" class="btn-gen" onclick="generarPassword()">
-                                    <span class="material-symbols-outlined">casino</span>
-                                    Generar aleatoria
-                                </button>
-                                <span id="pw_preview" style="font-family:monospace; font-size:.82rem; color:#374151; background:#f1f5f9; padding:4px 10px; border-radius:8px; display:none;"></span>
-                            </div>
-                            <span class="pw-hint">Genera una contraseña segura de 10 caracteres automáticamente.</span>
-                        </div>
-                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">
                             <span class="material-symbols-outlined">save</span>
@@ -396,6 +399,7 @@
                         </button>
                     </div>
                 </form>
+
             </div>
 
             {{-- LISTA --}}
