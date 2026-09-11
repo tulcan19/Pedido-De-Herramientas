@@ -15,9 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Inicio') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('herramientas.index')" :active="request()->routeIs('herramientas.*')">
-                        {{ __('Herramientas') }}
-                    </x-nav-link>
+                    @unless(Auth::user()->esDocente())
+                        <x-nav-link :href="route('herramientas.index')" :active="request()->routeIs('herramientas.*')">
+                            {{ __('Herramientas') }}
+                        </x-nav-link>
+                    @endunless
                     @if(Auth::user()->esAdmin() || Auth::user()->esDocente())
                         <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.index')">
                             {{ __('Estudiantes') }}
@@ -102,9 +104,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Inicio') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('herramientas.index')" :active="request()->routeIs('herramientas.*')">
-                {{ __('Herramientas') }}
-            </x-responsive-nav-link>
+            @unless(Auth::user()->esDocente())
+                <x-responsive-nav-link :href="route('herramientas.index')" :active="request()->routeIs('herramientas.*')">
+                    {{ __('Herramientas') }}
+                </x-responsive-nav-link>
+            @endunless
             @if(Auth::user()->esAdmin() || Auth::user()->esDocente())
                 <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.index')">
                     {{ __('Estudiantes') }}
