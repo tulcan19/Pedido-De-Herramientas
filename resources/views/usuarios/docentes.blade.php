@@ -348,6 +348,21 @@
                         </div>
                     </div>
 
+                    {{-- Fila de correo --}}
+                    <div class="form-grid-pw">
+                        <div class="field-group" style="grid-column: 1 / -1;">
+                            <label class="field-label">Correo Electrónico</label>
+                            <input type="email" name="email" class="field-input"
+                                   placeholder="Ej. juan.perez@istpet.edu.ec"
+                                   value="{{ old('email') }}">
+                            <span class="pw-hint">
+                                <span style="font-size:13px; vertical-align:middle;">✉</span>
+                                Opcional — se usará para recuperar la contraseña en caso de pérdida.
+                            </span>
+                            @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
                     {{-- Fila de contraseña --}}
                     <div class="form-grid-pw">
                         <div class="field-group">
@@ -400,6 +415,7 @@
                                 <th>Usuario</th>
                                 <th>Rol</th>
                                 <th>Cédula</th>
+                                <th>Correo</th>
                                 <th>Asignaturas</th>
                                 <th style="text-align:center;">Acciones</th>
                             </tr>
@@ -425,6 +441,13 @@
                                     @endif
                                 </td>
                                 <td style="font-family:monospace; font-size:.85rem; color:#6b7280;">{{ $docente->cedula }}</td>
+                                <td style="font-size:.82rem; color:#374151; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    @if($docente->email)
+                                        <a href="mailto:{{ $docente->email }}" style="color:#2563eb; text-decoration:none;" title="{{ $docente->email }}">{{ $docente->email }}</a>
+                                    @else
+                                        <span style="color:#d1d5db; font-style:italic;">Sin correo</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @foreach(explode(',', $docente->asignatura) as $mat)
                                         <span class="subject-pill">{{ trim($mat) }}</span>
@@ -433,7 +456,7 @@
                                 <td>
                                     <div style="display:flex; align-items:center; justify-content:center; gap:.5rem;">
                                         <button type="button"
-                                            onclick="openEditModal({{ $docente->id }}, '{{ addslashes($docente->nombre) }}', '{{ $docente->cedula }}', '{{ addslashes($docente->asignatura) }}', '{{ $docente->rol }}')"
+                                            onclick="openEditModal({{ $docente->id }}, '{{ addslashes($docente->nombre) }}', '{{ $docente->cedula }}', '{{ addslashes($docente->asignatura) }}', '{{ $docente->rol }}', '{{ $docente->email ?? '' }}')"
                                             class="action-btn edit" title="Editar Personal">
                                             <span class="material-symbols-outlined">edit</span>
                                         </button>
@@ -535,6 +558,23 @@
                         <span class="field-hint">Opcional para Coordinadores. Ingresa una o varias materias separadas por comas.</span>
                     </div>
 
+                    <!-- Sección: Contacto -->
+                    <div class="modal-section-title">
+                        <span class="material-symbols-outlined">mail</span>
+                        Contacto y recuperación
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">
+                            <span class="material-symbols-outlined">alternate_email</span>
+                            Correo Electrónico <span style="font-weight:500;color:#9ca3af;text-transform:none;letter-spacing:0;">(opcional)</span>
+                        </label>
+                        <input type="email" name="email" id="edit_email" class="field-input"
+                               placeholder="Ej. juan.perez@istpet.edu.ec">
+                        <span class="field-hint">
+                            <span style="font-size:12px;">✉</span> Se usará para recuperar la contraseña en caso de pérdida.
+                        </span>
+                    </div>
+
                     <!-- Sección: Seguridad -->
                     <div class="modal-section-title">
                         <span class="material-symbols-outlined">lock</span>
@@ -599,12 +639,13 @@
         }
 
         /* ── Modal de edición ── */
-        function openEditModal(id, nombre, cedula, asignatura, rol) {
+        function openEditModal(id, nombre, cedula, asignatura, rol, email) {
             document.getElementById('editForm').action = `/docentes/${id}`;
             document.getElementById('edit_nombre').value = nombre;
             document.getElementById('edit_cedula').value = cedula;
             document.getElementById('edit_asignatura').value = asignatura;
             document.getElementById('edit_rol').value = rol;
+            document.getElementById('edit_email').value = email || '';
             document.getElementById('edit_password').value = '';
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';

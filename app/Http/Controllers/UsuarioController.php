@@ -205,10 +205,13 @@ class UsuarioController extends Controller
             'asignatura' => 'nullable|string|max:255',
             'rol' => 'required|in:docente,admin',
             'password' => 'nullable|string|min:4',
+            'email' => 'nullable|email|max:255|unique:usuarios,email',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
             'cedula.regex' => 'La cédula solo debe contener números.',
             'password.min' => 'La contraseña debe tener al menos 4 caracteres.',
+            'email.unique' => 'Este correo ya está registrado en el sistema.',
+            'email.email' => 'El formato del correo no es válido.',
         ]);
 
         $password = $request->filled('password')
@@ -218,6 +221,7 @@ class UsuarioController extends Controller
         Usuario::create([
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
+            'email' => $request->email ?: null,
             'asignatura' => $request->asignatura ?? 'N/A',
             'password' => $password,
             'rol' => $request->rol,
@@ -242,14 +246,18 @@ class UsuarioController extends Controller
             'asignatura' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:4',
             'rol' => 'required|in:docente,admin',
+            'email' => 'nullable|email|max:255|unique:usuarios,email,' . $usuario->id,
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada para otro usuario.',
             'cedula.regex' => 'La cédula solo debe contener números.',
+            'email.unique' => 'Este correo ya está registrado para otro usuario.',
+            'email.email' => 'El formato del correo no es válido.',
         ]);
 
         $dataToUpdate = [
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
+            'email' => $request->email ?: null,
             'asignatura' => $request->asignatura ?? 'N/A',
             'rol' => $request->rol,
         ];
