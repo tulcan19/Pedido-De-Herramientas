@@ -353,10 +353,17 @@
                             <div class="card-name">{{ $herramienta->nombre }}</div>
                             <div class="card-desc">{{ $herramienta->descripcion ?? 'Herramienta de taller mecánico.' }}</div>
                             @if($herramienta->estado == 'disponible')
-                                <button type="button" class="btn-reserve available btn-add-cart" data-id="{{ $herramienta->id }}">
-                                    <span class="material-symbols-outlined">add_task</span>
-                                    Añadir a Petición
-                                </button>
+                                @if(Auth::user()->rol === 'estudiante')
+                                    <button type="button" class="btn-reserve available btn-add-cart" data-id="{{ $herramienta->id }}">
+                                        <span class="material-symbols-outlined">add_task</span>
+                                        Añadir a Petición
+                                    </button>
+                                @else
+                                    <button class="btn-reserve disabled" disabled style="opacity:.45; cursor:default;">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        Disponible
+                                    </button>
+                                @endif
                             @else
                                 <button class="btn-reserve disabled" disabled>
                                     <span class="material-symbols-outlined">block</span>
