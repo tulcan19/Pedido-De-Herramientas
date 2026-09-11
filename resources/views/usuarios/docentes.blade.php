@@ -59,8 +59,30 @@
         .doc-card-header span.sub { font-size: .78rem; color: #9ca3af; display: block; margin-top: 1px; }
 
         /* ── FORM GRID ── */
-        .form-grid { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 1.25rem; padding: 1.75rem 2rem; }
-        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-grid { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 1.25rem; padding: 1.75rem 2rem 1rem; }
+        .form-grid-pw { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 0 2rem 1.25rem; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .form-grid-pw { grid-template-columns: 1fr; } }
+
+        /* Password row in create form */
+        .pw-wrapper { position: relative; }
+        .pw-wrapper .field-input { padding-right: 2.8rem; }
+        .pw-eye {
+            position: absolute; right: .8rem; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: #9ca3af;
+            display: flex; align-items: center; transition: color .15s; padding: 0;
+        }
+        .pw-eye:hover { color: #cca75b; }
+        .pw-eye .material-symbols-outlined { font-size: 18px; }
+        .btn-gen {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(204,167,91,.12); border: 1.5px solid rgba(204,167,91,.4);
+            color: #a07a2a; padding: .55rem 1rem; border-radius: 10px;
+            font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .8rem;
+            cursor: pointer; transition: background .15s, border-color .15s; white-space: nowrap;
+        }
+        .btn-gen:hover { background: rgba(204,167,91,.22); border-color: #cca75b; }
+        .btn-gen .material-symbols-outlined { font-size: 16px; }
+        .pw-hint { font-size: .71rem; color: #9ca3af; margin-top: .25rem; line-height: 1.4; }
 
         .field-group { display: flex; flex-direction: column; gap: .4rem; }
         .field-label { font-size: .75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
@@ -325,6 +347,33 @@
                             @error('rol') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                     </div>
+
+                    {{-- Fila de contraseña --}}
+                    <div class="form-grid-pw">
+                        <div class="field-group">
+                            <label class="field-label">Contraseña</label>
+                            <div class="pw-wrapper">
+                                <input type="password" name="password" id="create_password" class="field-input"
+                                       placeholder="Dejar vacío para usar la cédula">
+                                <button type="button" class="pw-eye" onclick="toggleCreatePass(this)" tabindex="-1">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </button>
+                            </div>
+                            <span class="pw-hint">Opcional — si se deja vacío, la cédula se usará como contraseña inicial.</span>
+                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Generar Contraseña</label>
+                            <div style="display:flex; gap:.6rem; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn-gen" onclick="generarPassword()">
+                                    <span class="material-symbols-outlined">casino</span>
+                                    Generar aleatoria
+                                </button>
+                                <span id="pw_preview" style="font-family:monospace; font-size:.82rem; color:#374151; background:#f1f5f9; padding:4px 10px; border-radius:8px; display:none;"></span>
+                            </div>
+                            <span class="pw-hint">Genera una contraseña segura de 10 caracteres automáticamente.</span>
+                        </div>
+                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">
                             <span class="material-symbols-outlined">save</span>
@@ -521,6 +570,35 @@
     </div>
 
     <script>
+        /* ── Funciones del formulario de CREACIÓN ── */
+        function toggleCreatePass(btn) {
+            const input = document.getElementById('create_password');
+            const icon  = btn.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        function generarPassword() {
+            const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+            let pw = '';
+            for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+            const input   = document.getElementById('create_password');
+            const preview = document.getElementById('pw_preview');
+            input.value   = pw;
+            input.type    = 'text';
+            preview.textContent = pw;
+            preview.style.display = 'inline-block';
+            // Cambiar ícono del ojo
+            const eyeBtn = input.parentElement.querySelector('.pw-eye .material-symbols-outlined');
+            if (eyeBtn) eyeBtn.textContent = 'visibility_off';
+        }
+
+        /* ── Modal de edición ── */
         function openEditModal(id, nombre, cedula, asignatura, rol) {
             document.getElementById('editForm').action = `/docentes/${id}`;
             document.getElementById('edit_nombre').value = nombre;

@@ -204,20 +204,30 @@ class UsuarioController extends Controller
             'cedula' => 'required|regex:/^[0-9]+$/|unique:usuarios,cedula|max:10',
             'asignatura' => 'nullable|string|max:255',
             'rol' => 'required|in:docente,admin',
+            'password' => 'nullable|string|min:4',
         ], [
             'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
             'cedula.regex' => 'La cédula solo debe contener números.',
+            'password.min' => 'La contraseña debe tener al menos 4 caracteres.',
         ]);
+
+        $password = $request->filled('password')
+            ? Hash::make($request->password)
+            : Hash::make($request->cedula);
 
         Usuario::create([
             'nombre' => $request->nombre,
             'cedula' => $request->cedula,
             'asignatura' => $request->asignatura ?? 'N/A',
-            'password' => Hash::make($request->cedula),
+            'password' => $password,
             'rol' => $request->rol,
         ]);
 
-        return back()->with('success', 'Personal registrado exitosamente. La contraseña inicial es su número de cédula.');
+        $msg = $request->filled('password')
+            ? 'Personal registrado exitosamente con la contraseña asignada.'
+            : 'Personal registrado exitosamente. La contraseña inicial es su número de cédula.';
+
+        return back()->with('success', $msg);
     }
 
     public function docentesUpdate(Request $request, Usuario $usuario)
