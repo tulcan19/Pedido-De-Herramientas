@@ -81,6 +81,16 @@ class PeticionController extends Controller
             $request->merge(['minutos' => (int) $minutos]);
         }
 
+        $horas = $request->input('horas');
+        if (is_string($horas) && preg_match('/^(\d{1,2}):(\d{2})$/', $horas, $horaCompleta)) {
+            $request->merge([
+                'horas' => (int) $horaCompleta[1],
+                'minutos' => (int) $horaCompleta[2],
+            ]);
+        } elseif (is_string($horas) && ctype_digit($horas)) {
+            $request->merge(['horas' => (int) $horas]);
+        }
+
         $request->validate([
             'docente_id' => 'required|exists:usuarios,id',
             'asignatura' => 'required|string|max:255',
